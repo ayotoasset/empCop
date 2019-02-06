@@ -17,6 +17,7 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports: 
-    magrittr
+    magrittr,
+    dplyr
 URL: https://lrnv.github.io/empCop/, https://github.com/lrnv/empCop
 BugReports: https://github.com/lrnv/empCop/issues

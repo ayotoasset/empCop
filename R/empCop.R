@@ -1,4 +1,5 @@
 #' @import copula
+#' @import magrittr
 #' @import dplyr
 NULL
 
@@ -230,8 +231,9 @@ setMethod(f="rCopula",signature=c(n="numeric",copula="cbkmCopula"),definition = 
     # Second step : Calculate the boxes that corespond to thoose simulations, and add to
     # them the number of rows corresponding to observations (if they exist)
     simulated_box_with_row_number <- (floor(simu_known_cop*copula@m)/copula@m) %>%
-      as.data.frame() %>%
-      set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
+      as.data.frame()
+    colnames(simulated_box_with_row_number) <- colnames(copula@pseudo_data)[copula@margins]
+    simulated_box_with_row_number <- simulated_box_with_row_number %>%
       mutate(n_sim=1:n) %>%
       left_join(
         as.data.frame(seuil_inf[,copula@margins]) %>%
@@ -263,11 +265,11 @@ setMethod(f="rCopula",signature=c(n="numeric",copula="cbkmCopula"),definition = 
     # Bounds for non-existing boxes : 0 or 1.
     seuil_inf_na <-
       matrix(0,ncol=ncol(copula@pseudo_data)-length(copula@margins),nrow=nrow(rows_na)) %>%
-      set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
+      magrittr::set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
       {cbind(rows_na,.)}
     seuil_sup_na <-
       matrix(1,ncol=ncol(copula@pseudo_data)-length(copula@margins),nrow=nrow(rows_na)) %>%
-      set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
+      magrittr::set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
       {cbind(rows_na,.)}
 
     # FInaly, grouping thoose bounds :
@@ -282,7 +284,7 @@ setMethod(f="rCopula",signature=c(n="numeric",copula="cbkmCopula"),definition = 
 
     # Last step : add the known part of the simulation and return the result :
     simu_known_cop %>%
-      set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
+      magrittr::set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
       cbind(simu_checkerboard) %>%
       select(colnames(copula@pseudo_data)) %>%
       return

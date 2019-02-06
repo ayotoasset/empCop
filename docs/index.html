@@ -82,10 +82,45 @@
       
       </header><div class="row">
   <div class="contents col-md-9">
-This package notably gives (for the moment) tools to work with Empirical 
-  checkerboard copula, empirical checkerboard copula with known margins and convex 
-  combinaisons of copulas. It uses the main classes and formal generics from the 
-  `copula` package.
+<div id="empirical-copulas" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#empirical-copulas" class="anchor"></a>Empirical Copulas</h1></div>
+<p>The goal of empCop is to give tools to work with Empirical checkerboard copula, empirical checkerboard copula with known margins and convex combinaisons of copulas. It uses the main classes and formal generics from the <code>copula</code> package. It aims at implmeenting a lot of empirical model to asses multivaraite dependance structures that are not already implement in the main <code>copula</code> package.</p>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>WARNING : This package is in active developpement an is clearly NOT stable. use with caution. If you are still not scared, you can install the released version of empCop from Github with :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"lrnv/empCop"</span>)</a></code></pre></div>
+</div>
+<div id="example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#example" class="anchor"></a>Example</h2>
+<p>Starting with the <code>LifeCycleSavings</code> dataset, we could first plot and then compute the checkerboard copula ith parameter $m=5$ of this dataset with the following code :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"LifeCycleSavings"</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">pseudo_data &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/apply">apply</a></span>(LifeCycleSavings,<span class="dv">2</span>,rank,<span class="dt">ties.method=</span><span class="st">"max"</span>)<span class="op">/</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(LifeCycleSavings)<span class="op">+</span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(pseudo_data) <span class="co"># plot pairs of pseudo_data</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">cop &lt;-<span class="st"> </span><span class="kw"><a href="reference/cbCopula.html">cbCopula</a></span>(<span class="dt">x =</span> pseudo_data,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>) <span class="co"># add pseudo=TRUE if you provided pseudo observation</span></a></code></pre></div>
+<p>And then this copula can be easily worked with, using for exemple <code>rCopula</code> to simulate, <code>pCopula</code> to calculate it’s values, and other common generics from the <code>copula</code> package.</p>
+<p>On the other hand, the empirical checkerboard copula with known margins can be constructed with the following code :</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">  true_copula &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.6</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  )</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  dataset &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">50</span>,true_copula) </a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(dataset) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"u"</span>,<span class="st">"v"</span>,<span class="st">"w"</span>,<span class="st">"x"</span>)</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(dataset,<span class="dt">lower.panel=</span><span class="ot">NULL</span>) <span class="co"># show the data that we start with</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">  known_clayton &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.6</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">  )</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14">  cop &lt;-<span class="st"> </span><span class="kw"><a href="reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">3</span>),<span class="dt">known_cop =</span> known_clayton)</a></code></pre></div>
+<p>And then, as before, this copula can be easily handled in the classical framework of <code>copula</code>’s S4 classes.</p>
+<p>You may want to see the vignettes for more details about this models, include the mathematical definitions associated with them.</p>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
