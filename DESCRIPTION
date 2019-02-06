@@ -1,0 +1,22 @@
+Package: empCop
+Type: Package
+Title: Classes and tools for some empirical or semi-parametrical models for copulas.
+Version: 0.0.0.9000
+Author: Oskar Laverny
+Maintainer: Oskar Laverny <oskar.laverny@gmail.com>
+Description: This package notably gives (for the moment) tools to work with Empirical 
+  checkerboard copula, empirical checkerboard copula with known margins and convex 
+  combinaisons of copulas. It uses the main classes and formal generics from the 
+  `copula` package.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Imports: 
+    magrittr
+URL: https://github.com/lrnv/empCop
+BugReports: https://github.com/lrnv/empCop/issues

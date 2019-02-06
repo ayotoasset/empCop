@@ -1,0 +1,489 @@
+#' @import copula
+#' @import dplyr
+NULL
+
+############ Generics #####
+
+
+############################### Empirical copula class ######
+#' Empirical Copula class (virtual mother class)
+#'
+#' @slot pseudo_data
+#'
+#' @export
+setClass(Class = "empCopula",
+         contains=c("VIRTUAL","Copula"),
+         slots = c(pseudo_data = "data.frame"),
+         validity = function(object){
+           errors <- c()
+           if(prod(apply(object@pseudo_data,1:2,is.numeric))!=1){
+             errors <- c(errors,"The data argument must be a numeric data.frame")
+           }
+           if(prod(object@pseudo_data <= 1)*prod(object@pseudo_data >= 0)==0){
+             errors <- c(errors,"The pseudo-data should be numeric between 0 and 1 (both included)")
+           }
+           if (length(errors) == 0) TRUE else errors
+          })
+
+
+setMethod(f="show", signature=(object="empCopula"), definition = function(object){
+            cat("This is a empCopula of dimention ",dim(object))
+          })
+setMethod(f="dim",  signature=(x="empCopula"),      definition = function(x){
+  return(ncol(x@pseudo_data))
+})
+############################### Checkerboard copula class #######
+#' Checkerboard copula class
+#'
+#' @slot m numeric : checkerboard parameter defining the "grid" dividing the space.
+#'
+#' @return A cbCopula object, which can be use to do... nothing yet !
+.cbCopula = setClass(Class = "cbCopula",
+          contains = "empCopula",
+          slots = c(m = "numeric"),
+          validity = function(object){
+            errors <- c()
+            if((nrow(object@pseudo_data)%%object@m) != 0 ){
+              errors <- c(errors,"m should divide the number of row")
+            }
+            if (length(errors) == 0) TRUE else errors
+          })
+#' cbCopula contructor
+#'
+#' @param x the data to be used
+#' @param m checkerboard parameter
+#' @param pseudo Boolean, defaults to `FALSE`. Set to `TRUE` if you are already providing pseudo datas into the `x` argument.
+#'
+#' @return a cbCopula object
+#' @export
+cbCopula = function(x,m=nrow(x),pseudo=FALSE){
+  if(missing(x)){
+    stop("The argument x must be provided")
+  }
+  if(!pseudo){
+    x <- apply(x,2,rank,na.last="keep")/(nrow(x)+1)
+  }
+  .cbCopula(pseudo_data=as.data.frame(x),m=m)
+}
+setMethod(f="dim",  signature=(x="cbCopula"),      definition = function(x){
+  return(ncol(x@pseudo_data))
+})
+setMethod(f="show",    signature=c(object="cbCopula"),            definition = function(object){
+            cat("This is a cbCopula , with : \n",
+            "  dim =",dim(object), "\n   n =",nrow(object@pseudo_data),"\n   m =",object@m,"\n")
+            cat("The variables names are : ", colnames(object@pseudo_data))
+          })
+setMethod(f="rCopula", signature=c(n="numeric",copula="cbCopula"),   definition = function(n,copula){
+
+  # The parameter n represent the number of generated values.
+  # if n=0, return a 0xdim matrix :
+  if(n==0){
+    return(matrix(NA,nrow=0,ncol=ncol(copula@pseudo_data)))
+  }
+            # The pseudo_data should be a matrix or a dataframe,
+            # with one row per value and one column per variable.
+
+            # The parameter m represent the size of the grid : bigger m means smaller grid.
+
+            # The structure (column names) will be preserved in the output, the row_names will
+            # indicate the riginal row that builded the box and the result will be converted
+            # to data.frame
+
+            # First, let's define the boxes containing the pseudo observations :
+            # Since it's a checkerboard, the boxes a regular with side length 1/m,
+            # so calculating the right boxes is easy :
+            seuil_inf = floor(copula@pseudo_data*copula@m)/copula@m
+            seuil_sup = seuil_inf+1/copula@m
+
+            # Then, let's sample rows coresponding to observations, i.e let's sample thoose boxes with
+            # probabilities proportional to the number of observations inside the box.
+            # notes that boxes with probability 0, i.e without observation, were not included here.
+            # This makes the algorythme fast.
+            rows <- sample(x = 1:nrow(copula@pseudo_data),size=n,replace = TRUE)
+            seuil_inf <- seuil_inf[rows,]
+            seuil_sup <- seuil_sup[rows,]
+
+            # Finaly, sample some random uniform, and bound them inside the sampled boxes :
+            rng <- matrix(runif(ncol(copula@pseudo_data)*n),nrow=n,byrow=FALSE)
+            result <- as.data.frame(seuil_inf+rng*(seuil_sup-seuil_inf))
+            rownames(result)<-NULL
+            colnames(result)<- NULL
+            result <- as.matrix(result)
+
+            return(result)
+          })
+setMethod(f="pCopula", signature=c(u="matrix",copula="cbCopula"), definition = function(u,copula){
+
+            # remind that pCopula and dCopula generics already transform inputs into matrices...
+
+            if(ncol(u) != dim(copula)){
+              stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+            }
+
+              seuil_inf = floor(copula@pseudo_data*copula@m)/copula@m
+              d=dim(copula)
+              n=nrow(copula@pseudo_data)
+              rez <- vector(length = nrow(u))
+
+              for(i in 1:nrow(u)){
+                ponderation <- t(apply(seuil_inf,1,function(y){u[i,]-y}))
+                ponderation <- pmax(pmin(ponderation,1/copula@m),0)
+                rez[i] <- sum(apply(ponderation,1,function(v){
+                  (prod(v)*copula@m^d)
+                }))/n
+              }
+
+              return(rez)
+          })
+
+
+############################### Checkerboard with known margin copula class #######
+#' Checkerboard with known margins copula class
+#'
+#' @slot m numeric : checkerboard parameter defining the "grid" dividing the space.
+#' @slot margins numeric integers refering to the margins you want to assign the known_cop to
+#' @slot known_cop Copula a copula object representing the known copula for the selected margins.
+#'
+#' @return A cbCopula object, which can be use to do... nothing yet !
+.cbkmCopula = setClass(Class = "cbkmCopula",
+                     contains = "empCopula",
+                     slots = c(m = "numeric",
+                               margins="numeric",
+                               known_cop="Copula"),
+                     validity = function(object){
+                       errors <- c()
+                       if((nrow(object@pseudo_data)%%object@m) != 0 ){
+                         errors <- c(errors,"m should divide the number of row")
+                       }
+                       if(length(object@margins) != dim(object@known_cop)){
+                         errors <- c(errors,"number of known margins hsuld be equal to dimention of known copula")
+                       }
+                       if(length(object@margins) > ncol(object@pseudo_data)){
+                         errors <- c(errors,"the number of known margins should be smaller than the number of total margins in the empirical data !!")
+                       }
+                       if(!all(object@margins %in% 1:ncol(object@pseudo_data))){
+                         errors <- c(errors,"provided margins number should be smaller than the number of dimention of empirical data")
+                       }
+                       if (length(errors) == 0) TRUE else errors
+                     }
+)
+#' cbkmCopula contructor
+#'
+#' @param x the data to be used
+#' @param m checkerboard parameter
+#' @param pseudo Boolean, defaults to `FALSE`. Set to `TRUE` if you are already providing pseudo datas into the `x` argument.
+#' @param margins_numbers numeric integers refering to the margins you want to assign the known_cop to
+#' @param known_cop Copula a copula object representing the known copula for the selected margins.
+#'
+#' @return a cbCopula object
+#' @export
+cbkmCopula = function(x,m=nrow(x),pseudo=FALSE,margins_numbers=NULL,known_cop=NULL){
+  if(missing(x)){
+    stop("The argument x must be provided")
+  }
+  if((is.null(known_cop) && (!is.null(margins_numbers))) || (is.null(known_cop) && (!is.null(margins)))){
+    stop("known_cop argument and margins argument must both be provided.")
+  }
+
+  if(!pseudo){
+    x <- apply(x,2,rank,na.last="keep")/(nrow(x)+1)
+  }
+  if(all(is.null(known_cop),is.null(margins_numbers))){
+    .cbCopula(pseudo_data=as.data.frame(x),m=m)
+  } else {
+    .cbkmCopula(pseudo_data=as.data.frame(x),m=m,margins=margins_numbers,known_cop=known_cop)
+  }
+
+
+}
+setMethod(f="dim",    signature=(x="cbkmCopula"),                  definition = function(x){
+  return(ncol(x@pseudo_data))
+})
+setMethod(f="show",   signature=c(object="cbkmCopula"),            definition = function(object){
+  cat("This is a cbkmCopula , with : \n",
+      "  dim =",dim(object), "\n   n =",nrow(object@pseudo_data),"\n   m =",object@m,"\n")
+  cat("The variables names are : ", colnames(object@pseudo_data),"\n")
+  cat("The variables ",object@margins," have a known copula  given by :\n")
+  writeLines(paste("\t", capture.output(show(object@known_cop)), sep=""))
+})
+setMethod(f="rCopula",signature=c(n="numeric",copula="cbkmCopula"),definition = function(n,copula){
+
+    # if n=0, return a 0xdim matrix :
+    if(n==0){
+      return(matrix(NA,nrow=0,ncol=ncol(copula@pseudo_data)))
+    }
+
+    # Preliminary : a `sample` function more efficient (cf ?sample, exemples)
+    resample <- function(x, ...) x[sample.int(length(x), ...)]
+
+    # Préliminary : supression of row.names
+    row.names(copula@pseudo_data) <- NULL
+
+    # Préliminary : calculation of boxes
+    seuil_inf = floor(copula@pseudo_data*copula@m)/copula@m
+    seuil_sup = seuil_inf+1/copula@m
+
+
+    # First step : simulate the known copula model.
+    simu_known_cop <- rCopula(n,copula@known_cop)
+
+    # Second step : Calculate the boxes that corespond to thoose simulations, and add to
+    # them the number of rows corresponding to observations (if they exist)
+    simulated_box_with_row_number <- (floor(simu_known_cop*copula@m)/copula@m) %>%
+      as.data.frame() %>%
+      set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
+      mutate(n_sim=1:n) %>%
+      left_join(
+        as.data.frame(seuil_inf[,copula@margins]) %>%
+          mutate(num_row=1:nrow(seuil_inf))
+      )
+
+    # Third step : Differenciate simulation fallen in existing boxes et simulations outside
+    # existing boxes. Indeed, the checkerboard part of the simulation will be delt with
+    # differently on thoose 2 cases.
+
+    # Les simulations qui sont tombées dans des boites existantes :
+    # For simulations that felt in existing boxes, we need to choose a line to attach them
+    # alowing us to simulate in the right box.
+    rows_not_na <- simulated_box_with_row_number %>%
+      filter(!is.na(num_row)) %>%
+      group_by(n_sim) %>%
+      summarise(num_row=resample(num_row,1))
+
+    # Corresponding Bounds
+    seuil_inf_not_na <- cbind(rows_not_na,seuil_inf[rows_not_na$num_row,-copula@margins])
+    seuil_sup_not_na <- cbind(rows_not_na,seuil_sup[rows_not_na$num_row,-copula@margins])
+
+    # For simulations that did NOT felt in existing boxes, we simulate with all possible
+    # range, i.e the Bounds are 0 and 1 for the checkerboard part.
+    rows_na <- simulated_box_with_row_number %>%
+      filter(is.na(num_row)) %>%
+      select(colnames(rows_not_na))
+
+    # Bounds for non-existing boxes : 0 or 1.
+    seuil_inf_na <-
+      matrix(0,ncol=ncol(copula@pseudo_data)-length(copula@margins),nrow=nrow(rows_na)) %>%
+      set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
+      {cbind(rows_na,.)}
+    seuil_sup_na <-
+      matrix(1,ncol=ncol(copula@pseudo_data)-length(copula@margins),nrow=nrow(rows_na)) %>%
+      set_colnames(colnames(seuil_inf[,-copula@margins])) %>%
+      {cbind(rows_na,.)}
+
+    # FInaly, grouping thoose bounds :
+    seuil_inf_final <- rbind(seuil_inf_na,seuil_inf_not_na) %>% arrange(n_sim) %>% select(-n_sim,-num_row)
+    seuil_sup_final <- rbind(seuil_sup_na,seuil_sup_not_na) %>% arrange(n_sim) %>% select(-n_sim,-num_row)
+
+
+    # Fourth step : simulate the checkerboard part via uniforms :
+    rng <- matrix(runif((ncol(copula@pseudo_data)-length(copula@margins))*n),nrow=n,byrow=FALSE)
+    simu_checkerboard <- as.data.frame(seuil_inf_final+rng*(seuil_sup_final-seuil_inf_final))
+
+
+    # Last step : add the known part of the simulation and return the result :
+    simu_known_cop %>%
+      set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
+      cbind(simu_checkerboard) %>%
+      select(colnames(copula@pseudo_data)) %>%
+      return
+
+})
+
+
+#### We need to code the pCopula function to be able to weight the copulas...
+#### Next time.
+
+
+# setMethod(f="pCopula", signature=c(u="vector",copula="cbkmCopula"), definition = function(u,copula){
+#
+#
+#   if(length(u) != dim(copula)){
+#     stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
+#   } else {
+#
+#     # c'est un vecteur de la bonne taille on lence le calcul :
+#
+#     # Il faut ici faire la somme sur toutes les boites de du prduite de :
+#
+#       #mesure de la copule sur la boite inter [0;u]
+#       # mesure de la boite inter [0;u] divisé par mesure de la boite
+#       # mesure (empirique) de la boite divisé par mesure (empirique) de la projection sur la partie connue indicatrice que ce diviseur n'est pas 0,
+#       # ou bien mesure de lebegue de la boite ivisé par la mesure de lebegue de la projection sinon.
+#
+#     # DOnc exit la technique de ne sommer que sur les boites ou il y avais de la data, il faut maintenat sommer sur TOUTES les boites...
+#     # en effet, on a la donnée de la copule connue qui devrais nous faire du poid sur toutes les boites.
+#
+#
+#     boites_inf <- seq(0,(copula@m-1)/copula@m,by=1/copula@m)
+#     boites_inf
+#
+#     # du coup on peut commencer par selectionner uniquement les boites telles que leur intersection avec [0,x] est non-vide.
+#
+#     floor(u*copula@m)/copula@m
+#
+#
+#     # et mesure_boite vaut tout simplement 1/m
+#     seuil_inf = floor(copula@pseudo_data*copula@m)/copula@m
+#
+#     ponderation <- t(apply(seuil_inf,1,function(y){u-y}))
+#     ponderation <- pmin(ponderation,1/copula@m)
+#     ponderation <- pmax(ponderation,0)
+#
+#     sum(apply(ponderation,1,function(u){
+#       (prod(u)*copula@m^dim(copula))
+#     }))/nrow(copula@pseudo_data)
+#   }
+# })
+# setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition = function(u,copula){
+#
+#   # just apply the previous one if it's a matrix.
+#
+#   if(ncol(u) != dim(copula)){
+#     stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
+#   } else {
+#     apply(u,1,cCopula,copula)
+#   }
+# })
+
+############################### Checkerboard with known margin copula class #######
+
+
+#' ConvexCombCopula class
+#'
+#' @slot copulas list of copulas of same dimension
+#' @slot alpha numeric. A vector of (positive) weights.
+#'
+#' @return a ConvexCombCopula object.
+#' @export
+.ConvexCombCopula = setClass(Class = "ConvexCombCopula",
+                       contains = "Copula",
+                       slots = c(copulas = "list",
+                                 alpha="numeric"),
+                       validity = function(object){
+                         errors <- c()
+                         if(length(object@copulas) != length(object@alpha)){
+                           errors <- c(errors,"the weights parameter alpha must have same length as the copulas list")
+                         }
+                         if(!all(sapply(object@copulas,function(x){is(x,"Copula")}))){
+                           errors <- c(errors,"parameter copulas should contains a list of copulas")
+                         }
+                         if(!all(object@alpha>=0)){
+                           errors <- c(errors,"weights should be positive")
+                         }
+                         if(!(length(unique(sapply(object@copulas,dim))) == 1)){
+                           errors <- c(errors,"all copulas must have same dimension")
+                         }
+                         if (length(errors) == 0) TRUE else errors
+                       }
+)
+#' ConvexCombCopula
+#'
+#' @param copulas a list of copulas of same dimention
+#' @param alpha a vector of (positive) weights
+#'
+#' The convexcombcopula class is used to build convex combinations of copulas,
+#' with given positives weights. The rCopula and pCopula functions works for
+#' thoose copulas, assuming they work for the given copulas that we combined
+#' in a convex way.
+#'
+#' @return a ConvexCombCopula object
+#' @export
+ConvexCombCopula = function(copulas,alpha=rep(1,length(copulas))){
+  if(missing(copulas) || (!is(copulas,"list"))){
+    stop("The argument copulas must be provided as a list of copulas")
+  }
+  .ConvexCombCopula(copulas=copulas,alpha=alpha)
+}
+setMethod(f="dim",    signature=(x="ConvexCombCopula"),                  definition = function(x){
+  return(dim(x@copulas[[1]]))
+})
+setMethod(f="show",   signature=c(object="ConvexCombCopula"),            definition = function(object){
+  cat("This is a ConvexCombCopula , with : \n",
+      "  dim =",dim(object@copulas[[1]]), "\n   number of copulas =",length(object@copulas),"\n   alpha =",object@alpha,"\n")
+})
+setMethod(f="rCopula",signature=c(n="numeric",copula="ConvexCombCopula"),definition = function(n,copula){
+
+  # to choose wich copulas will be simulated from,
+  # sample 1:length(copulas) with weights equal to alpha, with replacement OFC
+  n_cop = length(copula@copulas)
+  sampled_copulas <- sample(1:n_cop,size = n,replace = TRUE,prob = copula@alpha)
+
+  # then sample from each of thoose copulas the right number of times :
+  samples <- mapply(
+    function(cop,how_much){
+      rCopula(n=how_much,copula=cop)
+    },
+    copula@copulas,
+    sapply(1:n_cop,function(x){sum(x == sampled_copulas)})
+  )
+
+  # then rbind all of them and mix rows :
+  samples <- do.call(rbind,samples)
+  samples <- samples[sample(1:nrow(samples),size = nrow(samples),replace = FALSE),]
+  return(samples)
+})
+setMethod(f="pCopula",signature=c(u="vector",copula="ConvexCombCopula"),definition = function(u,copula){
+  setMethod(f="pCopula", signature=c(u="matrix",copula="ConvexCombCopula"), definition = function(u,copula){
+
+    # just apply the previous one if it's a matrix.
+
+    if(ncol(u) != dim(copula)){
+      stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
+    } else {
+      apply(u,1,pCopula,copula)
+    }
+  })
+  # simply weights outputs of pCopula for the copulas with weights alpha :
+  outputs <- lapply(copula@copulas,function(cop){pCopula(u,cop)})
+
+})
+
+# pairs(rCopula(1000,ConvexCombCopula(copulas=list(archmCopula("clayton",-1,2),cbCopula(x = rCopula(10,archmCopula("clayton",10,2)),m = 5,pseudo = TRUE)),alpha=c(1,10))))
+
+
+# Okay.
+
+# next step will be to use this class to perform an automatic-weighting of the copulas;
+
+# e.g we could perform a weighting by looking at some distance on the copula space to
+# the empirical copula of some data.
+# 2 questions arises naturaly :
+  # Q1 : Wich distance ?
+  # Q2 : how to be shure we are not overfitting with this distance ? i.e penalisation.
+
+# So we need a distance on the copula space, and some tests based on it.
+# The distance of the model to the empirical copula on the empirical points will be
+# our "goodness of fit" measure.
+
+# We need to implement distances on the copula space to the empirical copula... This seems rather dificult
+
+# We also need to implement the pcopula function for all of thoose copulas.
+
+
+#################################### End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
