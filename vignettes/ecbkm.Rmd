@@ -107,7 +107,7 @@ The package implemnts the ECBC with known margins through the `cbkmCopula` class
 
 for exemple, let's work on some simulated datas, e.g a 4-dimension clayton copula simulated via the `copula` package.
 
-```{r}
+```{r,fig.cap="Pairs-plot of the simulated dataset"}
   true_copula <- onacopulaL(
     family = "Clayton",
     nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4)
@@ -137,7 +137,7 @@ Then we can construct the ECBC with this known margin :
 
 We can then simulate from it : 
 
-```{r}
+```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from the true model (black)"}
   simu <- rCopula(1000,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
@@ -147,7 +147,7 @@ We can then simulate from it :
 You can see that the known-margin was respected. 
 
 What now if the known margins is clearly missspecified ? 
-```{r}
+```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black)"}
   wrong_clayton <- onacopulaL(
     family = "Clayton",
     nacList = list(iTau(getAcop("Clayton"), 0.1), 1:2)
@@ -163,7 +163,7 @@ The conditioning mecanisme did not do well for other margins too.
 
 What now if the 2 parts are clearly independant ? 
 
-```{r}
+```{r, fig.cap="Pairs-plot of the original data with independance"}
 
   true_copula1 <- onacopulaL(
     family = "Clayton",
@@ -178,6 +178,8 @@ What now if the 2 parts are clearly independant ?
   colnames(dataset) <- c("u","v","w","x")
   pairs(dataset,lower.panel=NULL)
 
+```
+```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case"}
   cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
 
   simu <- rCopula(1000,cop)

@@ -9,7 +9,7 @@ NULL
 ############################### Empirical copula class ######
 #' Empirical Copula class (virtual mother class)
 #'
-#' @slot pseudo_data
+#' @slot pseudo_data matrix : pseudo_data that the empirical copula is based on.
 #'
 #' @export
 setClass(Class = "empCopula",

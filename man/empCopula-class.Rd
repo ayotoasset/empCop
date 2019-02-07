@@ -10,6 +10,6 @@ Empirical Copula class (virtual mother class)
 \section{Slots}{
 
 \describe{
-\item{\code{pseudo_data}}{}
+\item{\code{pseudo_data}}{matrix : pseudo_data that the empirical copula is based on.}
 }}
 

@@ -1,0 +1,47 @@
+---
+title: "Convex combinasion of copulas"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Convex combinasion of copulas}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+
+The goal of this vignette is to describe what are convex combinaisons of copulas and how we implemented them inside the `empCop` package. 
+
+First, if we supose a list of copulas $C_i, i \in {1,...,n}$ all of the same dimension, we should emphasis that $\sum\limits_{i=1}^n \alpha_i C_i$ is still a copula as soon as $\sum\limits_{i=1}^n \alpha_i = 1$ and $\alpha_i >=0 \forall i$. 
+
+This simple *linear* combinaison of copulas can be constructed in R through the following code : 
+
+```{r}
+library(copula)
+library(empCop)
+
+copulas <- list(
+  archmCopula("gumbel",3,dim=2),
+  archmCopula("clayton",-1,dim=2)
+)
+alpha <- c(1,4)
+
+(cop <- ConvexCombCopula(copulas,alpha))
+
+plot(rCopula(1000,cop))
+
+```
+
+
+The number of copulas is not restricte. Avaliables methods are for the moment `rCopula` and `pCopula`. 
+
+

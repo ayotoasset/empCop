@@ -53,6 +53,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/convexcombcopula.html">Convex combinasion of copulas</a>
+    </li>
+    <li>
       <a href="../articles/ecb.html">Empirical Checkerboard Copula</a>
     </li>
     <li>
@@ -83,7 +86,7 @@
       <h1>Empirical Checkerboard Copula with known margins</h1>
                         <h4 class="author">Vignette Author</h4>
             
-            <h4 class="date">2019-02-06</h4>
+            <h4 class="date">2019-02-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/lrnv/empCop/blob/master/vignettes/ecbkm.Rmd"><code>vignettes/ecbkm.Rmd</code></a></small>
       <div class="hidden name"><code>ecbkm.Rmd</code></div>
@@ -179,7 +182,11 @@
 <a class="sourceLine" id="cb1-5" data-line-number="5">  dataset &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">50</span>,true_copula) </a>
 <a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(dataset) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"u"</span>,<span class="st">"v"</span>,<span class="st">"w"</span>,<span class="st">"x"</span>)</a>
 <a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(dataset,<span class="dt">lower.panel=</span><span class="ot">NULL</span>)</a></code></pre></div>
-<p><img src="ecbkm_files/figure-html/unnamed-chunk-1-1.png" width="672"></p>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-1-1.png" alt="Pairs-plot of the simulated dataset" width="672"><p class="caption">
+Pairs-plot of the simulated dataset
+</p>
+</div>
 <p>And let’s suppose that the second bivariate margin is known, with a (right) clayton copula with <span class="math inline">\(\tau = 0.6\)</span> :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">  known_margins &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">3</span>)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">  known_clayton &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
@@ -204,7 +211,11 @@
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; Warning: le package 'bindrcpp' a été compilé avec la version R 3.4.4</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
 <a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
-<p><img src="ecbkm_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-4-1.png" alt="Pairs-plot of the original data (red) and simulated data from the true model (black)" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from the true model (black)
+</p>
+</div>
 <p>You can see that the known-margin was respected.</p>
 <p>What now if the known margins is clearly missspecified ?</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">  wrong_clayton &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
@@ -216,7 +227,11 @@
 <a class="sourceLine" id="cb5-7" data-line-number="7">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
 <a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
 <a class="sourceLine" id="cb5-9" data-line-number="9">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
-<p><img src="ecbkm_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-5-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black)" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from a wrong model (black)
+</p>
+</div>
 <p>The conditioning mecanisme did not do well for other margins too.</p>
 <p>What now if the 2 parts are clearly independant ?</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"></a>
@@ -232,14 +247,21 @@
 <a class="sourceLine" id="cb6-11" data-line-number="11">  dataset &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,true_copula1),<span class="kw">rCopula</span>(<span class="dv">100</span>,true_copula2))</a>
 <a class="sourceLine" id="cb6-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(dataset) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"u"</span>,<span class="st">"v"</span>,<span class="st">"w"</span>,<span class="st">"x"</span>)</a>
 <a class="sourceLine" id="cb6-13" data-line-number="13">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(dataset,<span class="dt">lower.panel=</span><span class="ot">NULL</span>)</a></code></pre></div>
-<p><img src="ecbkm_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
-<p><img src="ecbkm_files/figure-html/unnamed-chunk-6-2.png" width="672"></p>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-6-1.png" alt="Pairs-plot of the original data with independance" width="672"><p class="caption">
+Pairs-plot of the original data with independance
+</p>
+</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-7-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from a wrong model (black) – Independance case
+</p>
+</div>
 </div>
   </div>
 
