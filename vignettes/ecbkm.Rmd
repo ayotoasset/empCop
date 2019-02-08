@@ -138,7 +138,7 @@ Then we can construct the ECBC with this known margin :
 We can then simulate from it : 
 
 ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from the true model (black)"}
-  simu <- rCopula(1000,cop)
+  simu <- rCopula(500,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
 
@@ -154,7 +154,7 @@ What now if the known margins is clearly missspecified ?
   )
   cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
 
-  simu <- rCopula(1000,cop)
+  simu <- rCopula(500,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
 
@@ -182,7 +182,7 @@ What now if the 2 parts are clearly independant ?
 ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case"}
   cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
 
-  simu <- rCopula(1000,cop)
+  simu <- rCopula(500,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
 

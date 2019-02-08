@@ -53,7 +53,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/convexcombcopula.html">Convex combinasion of copulas</a>
+      <a href="../articles/convexcombcopula.html">Convex combination of copulas</a>
     </li>
     <li>
       <a href="../articles/ecb.html">Empirical Checkerboard Copula</a>
@@ -86,7 +86,7 @@
       <h1>Empirical Checkerboard Copula with known margins</h1>
                         <h4 class="author">Vignette Author</h4>
             
-            <h4 class="date">2019-02-07</h4>
+            <h4 class="date">2019-02-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/lrnv/empCop/blob/master/vignettes/ecbkm.Rmd"><code>vignettes/ecbkm.Rmd</code></a></small>
       <div class="hidden name"><code>ecbkm.Rmd</code></div>
@@ -195,19 +195,21 @@ Pairs-plot of the simulated dataset
 <a class="sourceLine" id="cb2-5" data-line-number="5">  )</a></code></pre></div>
 <p>Then we can construct the ECBC with this known margin :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> known_clayton)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">  cop</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; This is a cbkmCopula , with : </span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">#&gt;    dim = 4 </span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;    n = 50 </span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;    m = 5 </span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt; The variables names are :  u v w x </span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt; The variables  2 3  have a known copula  given by :</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt;  Nested Archimedean copula ("outer_nacopula" of dim. 2), with slot </span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt;  'comp'   = (1, 2)  and root</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  'copula' = Archimedean copula ("acopula"), family "Clayton", theta= (3)</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  and *no* child copulas</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  cop</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; This is a cbkmCopula , with : </span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;    dim = 4 </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;    n = 50 </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;    m = 5 </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt; The variables names are :  u v w x </span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt; The variables  2 3  have a known copula  given by :</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  Nested Archimedean copula ("outer_nacopula" of dim. 2), with slot </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  'comp'   = (1, 2)  and root</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  'copula' = Archimedean copula ("acopula"), family "Clayton", theta= (3)</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;  and *no* child copulas</span></a></code></pre></div>
 <p>We can then simulate from it :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">500</span>,cop)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; Warning: le package 'bindrcpp' a été compilé avec la version R 3.4.4</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
 <a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
@@ -223,10 +225,12 @@ Pairs-plot of the original data (red) and simulated data from the true model (bl
 <a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.1</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">  )</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">500</span>,cop)</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
 <div class="figure">
 <img src="ecbkm_files/figure-html/unnamed-chunk-5-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black)" width="672"><p class="caption">
 Pairs-plot of the original data (red) and simulated data from a wrong model (black)
@@ -253,10 +257,12 @@ Pairs-plot of the original data with independance
 </p>
 </div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">500</span>,cop)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; Joining, by = c("v", "w")</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
 <div class="figure">
 <img src="ecbkm_files/figure-html/unnamed-chunk-7-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case" width="672"><p class="caption">
 Pairs-plot of the original data (red) and simulated data from a wrong model (black) – Independance case

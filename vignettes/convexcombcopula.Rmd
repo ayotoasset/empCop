@@ -1,12 +1,12 @@
 ---
-title: "Convex combinasion of copulas"
+title: "Convex combination of copulas"
 author: "Vignette Author"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     fig_caption: yes
 vignette: >
-  %\VignetteIndexEntry{Convex combinasion of copulas}
+  %\VignetteIndexEntry{Convex combination of copulas}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 ```
 
-The goal of this vignette is to describe what are convex combinaisons of copulas and how we implemented them inside the `empCop` package. 
+The goal of this vignette is to describe what are convex combinations of copulas and how we implemented them inside the `empCop` package. The actual implemntation only deals with *linear* combinations.
 
 First, if we supose a list of copulas $C_i, i \in {1,...,n}$ all of the same dimension, we should emphasis that $\sum\limits_{i=1}^n \alpha_i C_i$ is still a copula as soon as $\sum\limits_{i=1}^n \alpha_i = 1$ and $\alpha_i >=0 \forall i$. 
 
@@ -37,7 +37,7 @@ alpha <- c(1,4)
 
 (cop <- ConvexCombCopula(copulas,alpha))
 
-plot(rCopula(1000,cop))
+plot(rCopula(100,cop))
 
 ```
 

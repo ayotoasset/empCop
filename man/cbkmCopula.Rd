@@ -24,3 +24,26 @@ a cbCopula object
 \description{
 cbkmCopula contructor
 }
+\examples{
+true_copula <- onacopulaL(family = "Clayton",
+nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4))
+
+dataset <- rCopula(50,true_copula)
+
+known_margins <- c(2,3)
+known_clayton <- onacopulaL(
+  family = "Clayton",
+  nacList = list(iTau(getAcop("Clayton"), 0.6), 1:2)
+)
+
+cop <- cbkmCopula(x = dataset,
+                  m = 5,
+                  pseudo = TRUE,
+                  margins_numbers = known_margins,
+                  known_cop = known_clayton)
+
+
+u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
+
+pCopula(u,cop)
+}

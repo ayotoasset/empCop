@@ -86,7 +86,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/convexcombcopula.html">Convex combinasion of copulas</a>
+      <a href="../articles/convexcombcopula.html">Convex combination of copulas</a>
     </li>
     <li>
       <a href="../articles/ecb.html">Empirical Checkerboard Copula</a>
@@ -161,6 +161,24 @@
     <p>a cbCopula object</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>true_copula</span> <span class='kw'>&lt;-</span> <span class='fu'>onacopulaL</span>(<span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"Clayton"</span>,
+<span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>"Clayton"</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>4</span>))</div><div class='output co'>#&gt; <span class='error'>Error in onacopulaL(family = "Clayton", nacList = list(iTau(getAcop("Clayton"),     0.6), 1:4)): impossible de trouver la fonction "onacopulaL"</span></div><div class='input'>
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'>rCopula</span>(<span class='fl'>50</span>,<span class='no'>true_copula</span>)</div><div class='output co'>#&gt; <span class='error'>Error in rCopula(50, true_copula): impossible de trouver la fonction "rCopula"</span></div><div class='input'>
+<span class='no'>known_margins</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>3</span>)
+<span class='no'>known_clayton</span> <span class='kw'>&lt;-</span> <span class='fu'>onacopulaL</span>(
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"Clayton"</span>,
+  <span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>"Clayton"</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>2</span>)
+)</div><div class='output co'>#&gt; <span class='error'>Error in onacopulaL(family = "Clayton", nacList = list(iTau(getAcop("Clayton"),     0.6), 1:2)): impossible de trouver la fonction "onacopulaL"</span></div><div class='input'>
+<span class='no'>cop</span> <span class='kw'>&lt;-</span> <span class='fu'>cbkmCopula</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>dataset</span>,
+                  <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>,
+                  <span class='kw'>pseudo</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+                  <span class='kw'>margins_numbers</span> <span class='kw'>=</span> <span class='no'>known_margins</span>,
+                  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='no'>known_clayton</span>)</div><div class='output co'>#&gt; <span class='error'>Error in cbkmCopula(x = dataset, m = 5, pseudo = TRUE, margins_numbers = known_margins,     known_cop = known_clayton): objet 'known_clayton' introuvable</span></div><div class='input'>
+
+<span class='no'>u</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>rbind</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>4</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0.7</span>,<span class='fl'>12</span>),<span class='kw'>nrow</span><span class='kw'>=</span><span class='fl'>3</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>))
+
+<span class='fu'>pCopula</span>(<span class='no'>u</span>,<span class='no'>cop</span>)</div><div class='output co'>#&gt; <span class='error'>Error in pCopula(u, cop): impossible de trouver la fonction "pCopula"</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -168,7 +186,9 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

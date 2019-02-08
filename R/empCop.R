@@ -7,12 +7,15 @@ NULL
 
 
 ############################### Empirical copula class ######
+
+
+
 #' Empirical Copula class (virtual mother class)
 #'
 #' @slot pseudo_data matrix : pseudo_data that the empirical copula is based on.
 #'
 #' @export
-setClass(Class = "empCopula",
+setClass(Class = "empiricalCopula",
          contains=c("VIRTUAL","Copula"),
          slots = c(pseudo_data = "data.frame"),
          validity = function(object){
@@ -27,12 +30,13 @@ setClass(Class = "empCopula",
           })
 
 
-setMethod(f="show", signature=(object="empCopula"), definition = function(object){
-            cat("This is a empCopula of dimention ",dim(object))
+setMethod(f="show", signature=(object="empiricalCopula"), definition = function(object){
+            cat("This is a empiricalCopula of dimention ",dim(object))
           })
-setMethod(f="dim",  signature=(x="empCopula"),      definition = function(x){
+setMethod(f="dim",  signature=(x="empiricalCopula"),      definition = function(x){
   return(ncol(x@pseudo_data))
 })
+
 ############################### Checkerboard copula class #######
 #' Checkerboard copula class
 #'
@@ -40,7 +44,7 @@ setMethod(f="dim",  signature=(x="empCopula"),      definition = function(x){
 #'
 #' @return A cbCopula object, which can be use to do... nothing yet !
 .cbCopula = setClass(Class = "cbCopula",
-          contains = "empCopula",
+          contains = "empiricalCopula",
           slots = c(m = "numeric"),
           validity = function(object){
             errors <- c()
@@ -147,10 +151,12 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbCopula"), definition = f
 #'
 #' @return A cbCopula object, which can be use to do... nothing yet !
 .cbkmCopula = setClass(Class = "cbkmCopula",
-                     contains = "empCopula",
+                     contains = "empiricalCopula",
                      slots = c(m = "numeric",
                                margins="numeric",
-                               known_cop="Copula"),
+                               known_cop="Copula",
+                               box_inf = "matrix",
+                               precalc = "list"),
                      validity = function(object){
                        errors <- c()
                        if((nrow(object@pseudo_data)%%object@m) != 0 ){
@@ -176,8 +182,32 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbCopula"), definition = f
 #' @param margins_numbers numeric integers refering to the margins you want to assign the known_cop to
 #' @param known_cop Copula a copula object representing the known copula for the selected margins.
 #'
+#'
 #' @return a cbCopula object
 #' @export
+#'
+#' @examples
+#' true_copula <- onacopulaL(family = "Clayton",
+#' nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4))
+#'
+#' dataset <- rCopula(50,true_copula)
+#'
+#' known_margins <- c(2,3)
+#' known_clayton <- onacopulaL(
+#'   family = "Clayton",
+#'   nacList = list(iTau(getAcop("Clayton"), 0.6), 1:2)
+#' )
+#'
+#' cop <- cbkmCopula(x = dataset,
+#'                   m = 5,
+#'                   pseudo = TRUE,
+#'                   margins_numbers = known_margins,
+#'                   known_cop = known_clayton)
+#'
+#'
+#' u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
+#'
+#' pCopula(u,cop)
 cbkmCopula = function(x,m=nrow(x),pseudo=FALSE,margins_numbers=NULL,known_cop=NULL){
   if(missing(x)){
     stop("The argument x must be provided")
@@ -192,7 +222,48 @@ cbkmCopula = function(x,m=nrow(x),pseudo=FALSE,margins_numbers=NULL,known_cop=NU
   if(all(is.null(known_cop),is.null(margins_numbers))){
     .cbCopula(pseudo_data=as.data.frame(x),m=m)
   } else {
-    .cbkmCopula(pseudo_data=as.data.frame(x),m=m,margins=margins_numbers,known_cop=known_cop)
+
+    ######## pCopula precalculations :
+        message("Doing precalculations...")
+        # construct boxes :
+        box_inf <- do.call(expand.grid,lapply(1:ncol(x),function(x){seq(0,1-1/m,length=m)}))
+        attr(box_inf,"out.attrs") <- NULL
+        box_inf <- as.matrix(box_inf)
+        colnames(box_inf) <- NULL
+
+        # now calculate the empirical measure for each box :
+
+        seuil_inf <- as.matrix(floor(x*m)/m)
+
+        nb_emp <- sapply(1:(m^ncol(x)),function(i){
+          sum(apply(seuil_inf,1,function(x){
+            all(round(m*x,0) == round(m*box_inf[i,],0))
+          }))
+        })
+
+        # idem pour les cases J :
+        nb_emp_J <- sapply(1:(m^ncol(x)),function(i){
+          sum(apply(seuil_inf,1,function(x){
+            all(round(m*x[margins_numbers],0) == round(m*box_inf[i,margins_numbers],0))
+          }))
+        })
+
+        weights <- vector(length = length(nb_emp))
+        weights[nb_emp_J != 0] <- nb_emp[nb_emp_J != 0] / nb_emp_J[nb_emp_J != 0]
+        weights[nb_emp_J == 0] <- m^(length(margins_numbers)-ncol(x))
+
+        pCopula_precalculations <- list(box_inf = box_inf,
+                                        nb_emp = nb_emp,
+                                        nb_emp_J = nb_emp_J,
+                                        weights=weights)
+    ######## Returning the objec :
+    message("Done !")
+    .cbkmCopula(pseudo_data=as.data.frame(x),
+                m=m,
+                margins=margins_numbers,
+                known_cop=known_cop,
+                box_inf=box_inf,
+                precalc = list(pCopula = pCopula_precalculations))
   }
 
 
@@ -290,64 +361,53 @@ setMethod(f="rCopula",signature=c(n="numeric",copula="cbkmCopula"),definition = 
       return
 
 })
+setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition = function(u,copula){
+  # this function implements the formula for the mesure of the copula given in the paper.
+  # remind that pCopula and dCopula generics already transform inputs into matrices...
+  if(ncol(u) != dim(copula)){
+    stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+  }
+  if(nrow(u) > 1){
+    return(apply(u,1,pCopula,copula))
+  }
+
+  J <- copula@margins
+  d=dim(copula)
+  k=length(J)
+  m=copula@m
+  boxes <- copula@precalc$pCopula$box_inf
+  weights <- copula@precalc$pCopula$weights
+
+  # Let's calculate the intersection of [0,u] with boxes :
+  y_min = rep(0,d)
+  intersections <- apply(boxes,1,function(box_infi){
+    suppressWarnings(intersect(x_min=box_infi,
+                               x_max=box_infi+1/m,
+                               y_min = y_min,
+                               y_max=u))
+  })
+
+  # Contribution of empty intersections will clearly be zero
+  are_empty <- sapply(intersections,is.null)
+  intersections <- intersections[!are_empty]
+
+  # mesure of the known copula on it's margins, per box :
+  mes_known <- sapply(intersections,function(inter){
+    vCopula(inter$min[J],inter$max[J],copula@known_cop)
+  })
+
+  # lebegue copula measure on it's margins, per box :
+  mes_lebesgue <- sapply(intersections,function(inter){
+    prod(inter$max[-J]-inter$min[-J])
+  })*(m^(d-k)) # renormalised by size of a -J box
+
+  # final value :
+  sum(mes_known * mes_lebesgue * weights[!are_empty])
+
+})
 
 
-#### We need to code the pCopula function to be able to weight the copulas...
-#### Next time.
-
-
-# setMethod(f="pCopula", signature=c(u="vector",copula="cbkmCopula"), definition = function(u,copula){
-#
-#
-#   if(length(u) != dim(copula)){
-#     stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
-#   } else {
-#
-#     # c'est un vecteur de la bonne taille on lence le calcul :
-#
-#     # Il faut ici faire la somme sur toutes les boites de du prduite de :
-#
-#       #mesure de la copule sur la boite inter [0;u]
-#       # mesure de la boite inter [0;u] divisé par mesure de la boite
-#       # mesure (empirique) de la boite divisé par mesure (empirique) de la projection sur la partie connue indicatrice que ce diviseur n'est pas 0,
-#       # ou bien mesure de lebegue de la boite ivisé par la mesure de lebegue de la projection sinon.
-#
-#     # DOnc exit la technique de ne sommer que sur les boites ou il y avais de la data, il faut maintenat sommer sur TOUTES les boites...
-#     # en effet, on a la donnée de la copule connue qui devrais nous faire du poid sur toutes les boites.
-#
-#
-#     boites_inf <- seq(0,(copula@m-1)/copula@m,by=1/copula@m)
-#     boites_inf
-#
-#     # du coup on peut commencer par selectionner uniquement les boites telles que leur intersection avec [0,x] est non-vide.
-#
-#     floor(u*copula@m)/copula@m
-#
-#
-#     # et mesure_boite vaut tout simplement 1/m
-#     seuil_inf = floor(copula@pseudo_data*copula@m)/copula@m
-#
-#     ponderation <- t(apply(seuil_inf,1,function(y){u-y}))
-#     ponderation <- pmin(ponderation,1/copula@m)
-#     ponderation <- pmax(ponderation,0)
-#
-#     sum(apply(ponderation,1,function(u){
-#       (prod(u)*copula@m^dim(copula))
-#     }))/nrow(copula@pseudo_data)
-#   }
-# })
-# setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition = function(u,copula){
-#
-#   # just apply the previous one if it's a matrix.
-#
-#   if(ncol(u) != dim(copula)){
-#     stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
-#   } else {
-#     apply(u,1,cCopula,copula)
-#   }
-# })
-
-############################### Checkerboard with known margin copula class #######
+############################### ConvexComCopula class #######
 
 
 #' ConvexCombCopula class
@@ -460,6 +520,87 @@ setMethod(f="pCopula",signature=c(u="vector",copula="ConvexCombCopula"),definiti
 # We need to implement distances on the copula space to the empirical copula... This seems rather dificult
 
 # We also need to implement the pcopula function for all of thoose copulas.
+
+# for exemple, we could :
+
+# 1) use the quadratic distance on a pseudo dataset? with bootstrap of this dataset ?
+
+#
+
+
+############################### Helpers functions #####
+
+number2binary = function(number, noBits) {
+  binary_vector = rev(as.numeric(intToBits(number)))
+  binary_vector[-(1:(length(binary_vector) - noBits))]
+}
+
+#' Copula volume on hyper-boxes
+#'
+#' @param u numeric minimum point of the hyper-rectangle
+#' @param v numeric maximum point of the hyper-rectangle
+#' @param copula the copula to calcule it's measure on [u,v]
+#'
+#' u must be piecewise smaller than v, otherwise the function will return an error.
+#'
+#' This function calculates the measure of the copula according to the algorythme proposed by :
+#' Umberto Cherubini & Silvia Romagnoli (2009) Computing the
+#' Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DOI:
+#'   10.1080/13504860802597311 link : http://dx.doi.org/10.1080/13504860802597311
+#'
+#'
+#'
+#' @return the measure of the copula
+#' @export
+#'
+#' @examples
+#' cop = copula::archmCopula("Clayton",0.7,3)
+#' vCopula(rep(0,3),rep(1,3),cop)
+#'
+vCopula <- function(u,v,copula){
+  # u and v must be numeric, copula must be a copula,
+  # and v must be smaller than u
+  if(any(v<u)){
+    stop("u must be smaller than v !")
+  }
+  if(any(u==v)){
+    return(0)
+  }
+
+  d=dim(copula)
+  rez <- vector(length=(2^d-1))
+
+  for(i in 0:(2^d-1)){
+    p <- number2binary(i,d)
+    rez[i+1] <- (-1)^sum(p) * pCopula(u*p + v*(1-p),copula)
+  }
+
+  return(sum(rez))
+
+}
+
+intersect <- function(x_min,x_max,y_min,y_max){
+  # retourne l'intersection es deux rectangles
+  # [x_min,x_max] et [y_min,y_max]
+
+  # sous la forme d'un rectangle
+  #[rez_min,rez_max]
+
+
+
+  # pour chaque dimensions, il faut prendre le maximum des min et le minimum des max.
+  rez <- list()
+  rez$min <- pmax(x_min,y_min)
+  rez$max <- pmin(x_max,y_max)
+
+  # checker que c'est pas l'ensemble vide :
+  if(any(rez$min > rez$max)){
+    warning("Ensemble vide ! On return NULL.")
+    return(NULL)
+  }
+
+  return(rez)
+}
 
 
 #################################### End
