@@ -118,7 +118,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>ConvexCombCopula</h1>
-    <small class="dont-index">Source: <a href='https://github.com/lrnv/empCop/blob/master/R/empCop.R'><code>R/empCop.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/lrnv/empCop/blob/master/R/ConvexCombCopula.R'><code>R/ConvexCombCopula.R</code></a></small>
     <div class="hidden name"><code>ConvexCombCopula.Rd</code></div>
     </div>
 
@@ -152,6 +152,19 @@ in a convex way.</p></td>
     <p>a ConvexCombCopula object</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>copulas</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(
+  <span class='kw pkg'>copula</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/copula/topics/archmCopula'>archmCopula</a></span>(<span class='st'>'gumbel'</span>,<span class='fl'>3</span>,<span class='kw'>dim</span><span class='kw'>=</span><span class='fl'>2</span>),
+  <span class='kw pkg'>copula</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/copula/topics/archmCopula'>archmCopula</a></span>(<span class='st'>'clayton'</span>,-<span class='fl'>1</span>,<span class='kw'>dim</span><span class='kw'>=</span><span class='fl'>2</span>)
+)
+<span class='no'>alpha</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>)
+
+(<span class='no'>cop</span> <span class='kw'>&lt;-</span> <span class='fu'>ConvexCombCopula</span>(<span class='no'>copulas</span>,<span class='no'>alpha</span>))</div><div class='output co'>#&gt; This is a ConvexCombCopula , with : 
+#&gt;    dim = 2 
+#&gt;    number of copulas = 2 
+#&gt;    alpha = 1 4 
+#&gt; sub-copulas can be accessed trhough the @copulas slot</div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='fu'>rCopula</span>(<span class='fl'>100</span>,<span class='no'>cop</span>))</div><div class='output co'>#&gt; <span class='error'>Error in rCopula(100, cop): impossible de trouver la fonction "rCopula"</span></div><div class='input'><span class='fu'>pCopula</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.5</span>,<span class='fl'>0.7</span>),<span class='no'>cop</span>)</div><div class='output co'>#&gt; <span class='error'>Error in pCopula(c(0.5, 0.7), cop): impossible de trouver la fonction "pCopula"</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -159,7 +172,9 @@ in a convex way.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

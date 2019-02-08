@@ -118,7 +118,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>cbkmCopula contructor</h1>
-    <small class="dont-index">Source: <a href='https://github.com/lrnv/empCop/blob/master/R/empCop.R'><code>R/empCop.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/lrnv/empCop/blob/master/R/cbkmCopula.R'><code>R/cbkmCopula.R</code></a></small>
     <div class="hidden name"><code>cbkmCopula.Rd</code></div>
     </div>
 
@@ -162,13 +162,13 @@
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>true_copula</span> <span class='kw'>&lt;-</span> <span class='fu'>onacopulaL</span>(<span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"Clayton"</span>,
-<span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>"Clayton"</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>4</span>))</div><div class='output co'>#&gt; <span class='error'>Error in onacopulaL(family = "Clayton", nacList = list(iTau(getAcop("Clayton"),     0.6), 1:4)): impossible de trouver la fonction "onacopulaL"</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='no'>true_copula</span> <span class='kw'>&lt;-</span> <span class='fu'>onacopulaL</span>(<span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>'Clayton'</span>,
+<span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>'Clayton'</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>4</span>))</div><div class='output co'>#&gt; <span class='error'>Error in onacopulaL(family = "Clayton", nacList = list(iTau(getAcop("Clayton"),     0.6), 1:4)): impossible de trouver la fonction "onacopulaL"</span></div><div class='input'>
 <span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'>rCopula</span>(<span class='fl'>50</span>,<span class='no'>true_copula</span>)</div><div class='output co'>#&gt; <span class='error'>Error in rCopula(50, true_copula): impossible de trouver la fonction "rCopula"</span></div><div class='input'>
 <span class='no'>known_margins</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>3</span>)
 <span class='no'>known_clayton</span> <span class='kw'>&lt;-</span> <span class='fu'>onacopulaL</span>(
-  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"Clayton"</span>,
-  <span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>"Clayton"</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>2</span>)
+  <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>'Clayton'</span>,
+  <span class='kw'>nacList</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'>iTau</span>(<span class='fu'>getAcop</span>(<span class='st'>'Clayton'</span>), <span class='fl'>0.6</span>), <span class='fl'>1</span>:<span class='fl'>2</span>)
 )</div><div class='output co'>#&gt; <span class='error'>Error in onacopulaL(family = "Clayton", nacList = list(iTau(getAcop("Clayton"),     0.6), 1:2)): impossible de trouver la fonction "onacopulaL"</span></div><div class='input'>
 <span class='no'>cop</span> <span class='kw'>&lt;-</span> <span class='fu'>cbkmCopula</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>dataset</span>,
                   <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>,
