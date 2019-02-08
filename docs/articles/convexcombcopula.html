@@ -112,10 +112,13 @@
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt; This is a ConvexCombCopula , with : </span></a>
 <a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt;    dim = 2 </span></a>
 <a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt;    number of copulas = 2 </span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt;    alpha = 1 4</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,cop))</a></code></pre></div>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt;    alpha = 1 4 </span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; sub-copulas can be accessed trhough the @copulas slot</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,cop))</a></code></pre></div>
 <p><img src="convexcombcopula_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">pCopula</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.5</span>,<span class="fl">0.7</span>),cop)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; [1] 1.28515</span></a></code></pre></div>
 <p>The number of copulas is not restricte. Avaliables methods are for the moment <code>rCopula</code> and <code>pCopula</code>.</p>
   </div>
 

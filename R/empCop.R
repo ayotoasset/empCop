@@ -4,6 +4,20 @@
 NULL
 
 ############ Generics #####
+setGeneric("vCopula", function(u, v, copula, ...) {
+
+  # taken from the generic of pCopula, does mainly the same...
+
+  if(!is.matrix(u)) u <- rbind(u, deparse.level = 0L)
+  ## here as well, 'outside' and 'on-boundary' are equivalent:
+  u[] <- pmax(0, pmin(1, u))
+
+  if(!is.matrix(v)) v <- rbind(v, deparse.level = 0L)
+  ## here as well, 'outside' and 'on-boundary' are equivalent:
+  v[] <- pmax(0, pmin(1, v))
+
+  standardGeneric("vCopula")
+})
 
 
 ############################### Empirical copula class ######
@@ -523,8 +537,8 @@ number2binary = function(number, noBits) {
 
 #' Copula volume on hyper-boxes
 #'
-#' @param u numeric minimum point of the hyper-rectangle
-#' @param v numeric maximum point of the hyper-rectangle
+#' @param u numeric matrix : minimum point of the hyper-rectangles, one row per observation.
+#' @param v numeric matrix : maximum point of the hyper-rectangle, one row per observation.
 #' @param copula the copula to calcule it's measure on [u,v]
 #'
 #' u must be piecewise smaller than v, otherwise the function will return an error.
@@ -540,12 +554,28 @@ number2binary = function(number, noBits) {
 #' @export
 #'
 #' @examples
+#' # For a simple one-dimentional input :
 #' cop = copula::archmCopula("Clayton",0.7,3)
 #' vCopula(rep(0,3),rep(1,3),cop)
 #'
-vCopula <- function(u,v,copula){
+#' # the function is vectorised :
+#' v=matrix(seq(0,1,length.out=12),ncol=3)
+#' v=matrix(rep(0,12),ncol=3)
+#' vCopula(u,v,cop)
+setMethod("vCopula",signature = c(u="matrix",v="matrix",copula="Copula"),definition = function(u,v,copula){
+
+  # can handle any copula thant pCopula could handle.
+
   # u and v must be numeric, copula must be a copula,
   # and v must be smaller than u
+  if(nrow(u) != nrow(v)){
+    stop("u and v must have same shape (same number of row and columns)")
+  }
+  if(nrow(u) > 1){
+    # recursive if asked for more than one.
+    return(sapply(1:nrow(u),function(i){vCopula(u[i,],v[i,],copula)}))
+  }
+
   if(any(v<u)){
     stop("u must be smaller than v !")
   }
@@ -563,7 +593,7 @@ vCopula <- function(u,v,copula){
 
   return(sum(rez))
 
-}
+})
 
 intersect <- function(x_min,x_max,y_min,y_max){
   # retourne l'intersection es deux rectangles
