@@ -7,9 +7,6 @@ NULL
 
 
 ############################### Empirical copula class ######
-
-
-
 #' Empirical Copula class (virtual mother class)
 #'
 #' @slot pseudo_data matrix : pseudo_data that the empirical copula is based on.
@@ -28,21 +25,11 @@ setClass(Class = "empiricalCopula",
            }
            if (length(errors) == 0) TRUE else errors
           })
-
-
-setMethod(f="show", signature=(object="empiricalCopula"), definition = function(object){
-            cat("This is a empiricalCopula of dimention ",dim(object))
-          })
 setMethod(f="dim",  signature=(x="empiricalCopula"),      definition = function(x){
   return(ncol(x@pseudo_data))
 })
 
 ############################### Checkerboard copula class #######
-#' Checkerboard copula class
-#'
-#' @slot m numeric : checkerboard parameter defining the "grid" dividing the space.
-#'
-#' @return A cbCopula object, which can be use to do... nothing yet !
 .cbCopula = setClass(Class = "cbCopula",
           contains = "empiricalCopula",
           slots = c(m = "numeric"),
@@ -70,9 +57,6 @@ cbCopula = function(x,m=nrow(x),pseudo=FALSE){
   }
   .cbCopula(pseudo_data=as.data.frame(x),m=m)
 }
-setMethod(f="dim",  signature=(x="cbCopula"),      definition = function(x){
-  return(ncol(x@pseudo_data))
-})
 setMethod(f="show",    signature=c(object="cbCopula"),            definition = function(object){
             cat("This is a cbCopula , with : \n",
             "  dim =",dim(object), "\n   n =",nrow(object@pseudo_data),"\n   m =",object@m,"\n")
@@ -141,15 +125,7 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbCopula"), definition = f
               return(rez)
           })
 
-
 ############################### Checkerboard with known margin copula class #######
-#' Checkerboard with known margins copula class
-#'
-#' @slot m numeric : checkerboard parameter defining the "grid" dividing the space.
-#' @slot margins numeric integers refering to the margins you want to assign the known_cop to
-#' @slot known_cop Copula a copula object representing the known copula for the selected margins.
-#'
-#' @return A cbCopula object, which can be use to do... nothing yet !
 .cbkmCopula = setClass(Class = "cbkmCopula",
                      contains = "empiricalCopula",
                      slots = c(m = "numeric",
@@ -268,9 +244,6 @@ cbkmCopula = function(x,m=nrow(x),pseudo=FALSE,margins_numbers=NULL,known_cop=NU
 
 
 }
-setMethod(f="dim",    signature=(x="cbkmCopula"),                  definition = function(x){
-  return(ncol(x@pseudo_data))
-})
 setMethod(f="show",   signature=c(object="cbkmCopula"),            definition = function(object){
   cat("This is a cbkmCopula , with : \n",
       "  dim =",dim(object), "\n   n =",nrow(object@pseudo_data),"\n   m =",object@m,"\n")
@@ -406,7 +379,6 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition =
 
 })
 
-
 ############################### ConvexComCopula class #######
 
 
@@ -450,6 +422,18 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition =
 #'
 #' @return a ConvexCombCopula object
 #' @export
+#'
+#' @exemples
+#' copulas <- list(
+#'   copula::archmCopula("gumbel",3,dim=2),
+#'   copula::archmCopula("clayton",-1,dim=2)
+#' )
+#' alpha <- c(1,4)
+#'
+#' (cop <- ConvexCombCopula(copulas,alpha))
+#'
+#' plot(rCopula(100,cop))
+#' pCopula(c(0.5,0.7),cop)
 ConvexCombCopula = function(copulas,alpha=rep(1,length(copulas))){
   if(missing(copulas) || (!is(copulas,"list"))){
     stop("The argument copulas must be provided as a list of copulas")
@@ -462,6 +446,7 @@ setMethod(f="dim",    signature=(x="ConvexCombCopula"),                  definit
 setMethod(f="show",   signature=c(object="ConvexCombCopula"),            definition = function(object){
   cat("This is a ConvexCombCopula , with : \n",
       "  dim =",dim(object@copulas[[1]]), "\n   number of copulas =",length(object@copulas),"\n   alpha =",object@alpha,"\n")
+  cat("sub-copulas can be accessed trhough the @copulas slot")
 })
 setMethod(f="rCopula",signature=c(n="numeric",copula="ConvexCombCopula"),definition = function(n,copula){
 
@@ -484,23 +469,24 @@ setMethod(f="rCopula",signature=c(n="numeric",copula="ConvexCombCopula"),definit
   samples <- samples[sample(1:nrow(samples),size = nrow(samples),replace = FALSE),]
   return(samples)
 })
-setMethod(f="pCopula",signature=c(u="vector",copula="ConvexCombCopula"),definition = function(u,copula){
-  setMethod(f="pCopula", signature=c(u="matrix",copula="ConvexCombCopula"), definition = function(u,copula){
+setMethod(f="pCopula",signature=c(u="matrix",copula="ConvexCombCopula"),definition = function(u,copula){
 
-    # just apply the previous one if it's a matrix.
+  # remind that pCopula and dCopula generics already transform inputs into matrices...
+  # remind that pCopula and dCopula generics already transform inputs into matrices...
+  if(ncol(u) != dim(copula)){
+    stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+  }
 
-    if(ncol(u) != dim(copula)){
-      stop("u must be a vector of length ",dim(copula)," or a matrix with ",dim(copula)," columns")
-    } else {
-      apply(u,1,pCopula,copula)
-    }
-  })
-  # simply weights outputs of pCopula for the copulas with weights alpha :
-  outputs <- lapply(copula@copulas,function(cop){pCopula(u,cop)})
+  outputs <- lapply(copula@copulas,function(cop){ pCopula(u,cop) })
+
+  rez     <- outputs[[1]]*copula@alpha[1]
+  for(i in 2:length(outputs)){
+    rez <- rez + outputs[[i]]*copula@alpha[i]
+  }
+
+  return(rez)
 
 })
-
-# pairs(rCopula(1000,ConvexCombCopula(copulas=list(archmCopula("clayton",-1,2),cbCopula(x = rCopula(10,archmCopula("clayton",10,2)),m = 5,pseudo = TRUE)),alpha=c(1,10))))
 
 
 # Okay.
