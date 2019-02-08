@@ -22,3 +22,15 @@ a ConvexCombCopula object
 \description{
 ConvexCombCopula
 }
+\examples{
+copulas <- list(
+  copula::archmCopula("gumbel",3,dim=2),
+  copula::archmCopula("clayton",-1,dim=2)
+)
+alpha <- c(1,4)
+
+(cop <- ConvexCombCopula(copulas,alpha))
+
+plot(rCopula(100,cop))
+pCopula(c(0.5,0.7),cop)
+}

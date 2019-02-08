@@ -4,6 +4,37 @@
 NULL
 
 ############ Generics #####
+#' Copula volume on hyper-boxes
+#'
+#' @param u numeric matrix : minimum point of the hyper-rectangles, one row per observation.
+#' @param v numeric matrix : maximum point of the hyper-rectangle, one row per observation.
+#' @param copula the copula to calcule it's measure on [u,v]
+#' @param ... other parameter to be passed to methods for this generic.
+#'
+#' u must be piecewise smaller than v, otherwise the function will return an error.
+#'
+#' A method is currently implemented for the main virtual class "Copula", but it assumes
+#' that a pCopula method is avaliable for the given copula.
+#'
+#' This function calculates the measure of the copula according to the algorythme proposed by :
+#' Umberto Cherubini & Silvia Romagnoli (2009) Computing the
+#' Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DOI:
+#'   10.1080/13504860802597311 link : http://dx.doi.org/10.1080/13504860802597311
+#'
+#'
+#'
+#' @return the measure of the copula
+#' @export
+#'
+#' @examples
+#' # For a simple one-dimentional input :
+#' cop = copula::archmCopula("Clayton",0.7,3)
+#' vCopula(rep(0,3),rep(1,3),cop)
+#'
+#' # the function is vectorised :
+#' v=matrix(seq(0,1,length.out=12),ncol=3)
+#' v=matrix(rep(0,12),ncol=3)
+#' vCopula(u,v,cop)
 setGeneric("vCopula", function(u, v, copula, ...) {
 
   # taken from the generic of pCopula, does mainly the same...
@@ -437,7 +468,7 @@ setMethod(f="pCopula", signature=c(u="matrix",copula="cbkmCopula"), definition =
 #' @return a ConvexCombCopula object
 #' @export
 #'
-#' @exemples
+#' @examples
 #' copulas <- list(
 #'   copula::archmCopula("gumbel",3,dim=2),
 #'   copula::archmCopula("clayton",-1,dim=2)
@@ -535,33 +566,7 @@ number2binary = function(number, noBits) {
   binary_vector[-(1:(length(binary_vector) - noBits))]
 }
 
-#' Copula volume on hyper-boxes
-#'
-#' @param u numeric matrix : minimum point of the hyper-rectangles, one row per observation.
-#' @param v numeric matrix : maximum point of the hyper-rectangle, one row per observation.
-#' @param copula the copula to calcule it's measure on [u,v]
-#'
-#' u must be piecewise smaller than v, otherwise the function will return an error.
-#'
-#' This function calculates the measure of the copula according to the algorythme proposed by :
-#' Umberto Cherubini & Silvia Romagnoli (2009) Computing the
-#' Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DOI:
-#'   10.1080/13504860802597311 link : http://dx.doi.org/10.1080/13504860802597311
-#'
-#'
-#'
-#' @return the measure of the copula
-#' @export
-#'
-#' @examples
-#' # For a simple one-dimentional input :
-#' cop = copula::archmCopula("Clayton",0.7,3)
-#' vCopula(rep(0,3),rep(1,3),cop)
-#'
-#' # the function is vectorised :
-#' v=matrix(seq(0,1,length.out=12),ncol=3)
-#' v=matrix(rep(0,12),ncol=3)
-#' vCopula(u,v,cop)
+
 setMethod("vCopula",signature = c(u="matrix",v="matrix",copula="Copula"),definition = function(u,v,copula){
 
   # can handle any copula thant pCopula could handle.
