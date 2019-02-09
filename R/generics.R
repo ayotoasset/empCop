@@ -22,9 +22,6 @@ NULL
 #' @param copula the copula to calcule it's measure on [u,v]
 #' @param ... other parameter to be passed to methods for this generic.
 #'
-#'
-#'
-#'
 #' @return the measure of the copula
 #' @export
 #'
