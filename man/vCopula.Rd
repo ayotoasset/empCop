@@ -36,7 +36,7 @@ cop = copula::archmCopula('Clayton',0.7,3)
 vCopula(rep(0,3),rep(1,3),cop)
 
 # the function is vectorised :
-u=matrix(seq(0,1,length.out=12),ncol=3)
-v=matrix(rep(0,12),ncol=3)
+v=matrix(seq(0,1,length.out=12),ncol=3)
+u=matrix(rep(0,12),ncol=3)
 vCopula(u,v,cop)
 }

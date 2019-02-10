@@ -131,84 +131,64 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
               return(matrix(NA, nrow = 0, ncol = ncol(copula@pseudo_data)))
             }
 
+            J <- copula@margins
+            d = dim(copula)
+            p = length(J)
+            m = copula@m
+            boxes <- copula@precalc$pCopula$box_inf
+            nb_emp <- copula@precalc$pCopula$nb_emp
+            nb_emp_J <- copula@precalc$pCopula$nb_emp_J
+            weights <- copula@precalc$pCopula$weights
+
             # Preliminary : a `sample` function more efficient (cf ?sample,
             # exemples)
             resample <- function(x, ...) x[sample.int(length(x), ...)]
 
-            # Préliminary : supression of row.names
-            row.names(copula@pseudo_data) <- NULL
-
-            # Préliminary : calculation of boxes
-            seuil_inf = floor(copula@pseudo_data * copula@m)/copula@m
-            seuil_sup = seuil_inf + 1/copula@m
-
-
             # First step : simulate the known copula model.
             simu_known_cop <- rCopula(n, copula@known_cop)
 
-            # Second step : Calculate the boxes that corespond to thoose
-            # simulations, and add to them the number of rows corresponding to
-            # observations (if they exist)
-            simulated_box_with_row_number <- (floor(simu_known_cop * copula@m)/copula@m) %>%
-              as.data.frame()
-            colnames(simulated_box_with_row_number) <- colnames(copula@pseudo_data)[copula@margins]
-            simulated_box_with_row_number <- simulated_box_with_row_number %>%
-              mutate(n_sim = 1:n) %>% left_join(as.data.frame(seuil_inf[,
-                                                                        copula@margins]) %>% mutate(num_row = 1:nrow(seuil_inf)))
+            # Second step : Calculate the boxes that corespond to thoose simulations
+            inf_seuil <- matrix(NA,nrow=n,ncol=d-p)
+            sup_seuil <- matrix(NA,nrow=n,ncol=d-p)
 
-            # Third step : Differenciate simulation fallen in existing boxes et
-            # simulations outside existing boxes. Indeed, the checkerboard part of
-            # the simulation will be delt with differently on thoose 2 cases.
+              # found wich boxes were simulated on the J part :
+              simu_boxes <- floor(simu_known_cop * m)/m
+              # get the corresponding boxes number
+              simu_boxes_nb <- apply(simu_boxes,1,function(x){
 
-            # Les simulations qui sont tombées dans des boites existantes : For
-            # simulations that felt in existing boxes, we need to choose a line to
-            # attach them alowing us to simulate in the right box.
-            rows_not_na <- simulated_box_with_row_number %>% filter(!is.na(num_row)) %>%
-              group_by(n_sim) %>% summarise(num_row = resample(num_row, 1))
+                # several boxes are avaliable with thoose J coordinates.
+                possibles_boxes <- which(sapply(1:nrow(boxes),function(i){all(boxes[i,J] == x)}))
 
-            # Corresponding Bounds
-            seuil_inf_not_na <- cbind(rows_not_na, seuil_inf[rows_not_na$num_row,
-                                                             -copula@margins])
-            seuil_sup_not_na <- cbind(rows_not_na, seuil_sup[rows_not_na$num_row,
-                                                             -copula@margins])
+                # Differenciate simulation fallen in existing boxes et
+                # simulations outside existing boxes. Indeed, the checkerboard part of
+                # the simulation will be delt with differently on thoose 2 cases.
 
-            # For simulations that did NOT felt in existing boxes, we simulate with
-            # all possible range, i.e the Bounds are 0 and 1 for the checkerboard
-            # part.
-            rows_na <- simulated_box_with_row_number %>% filter(is.na(num_row)) %>%
-              select(colnames(rows_not_na))
+                # We will construct an exeptional box for that :
+                # sample one of thoose with the weights, OR the [0,1]^(d-p) box if all weights are 0
+                if(sum(weights[possibles_boxes]) == 0){
+                  return(nrow(boxes)+1) # we return the box number n_box+1
+                } else {
+                  resample(possibles_boxes,size=1,prob = weights[possibles_boxes],replace = TRUE)
+                }
+              })
 
-            # Bounds for non-existing boxes : 0 or 1.
-            seuil_inf_na <- matrix(0, ncol = ncol(copula@pseudo_data) - length(copula@margins),
-                                   nrow = nrow(rows_na)) %>% magrittr::set_colnames(colnames(seuil_inf[,
-                                                                                                       -copula@margins])) %>% {
-                                                                                                         cbind(rows_na, .)
-                                                                                                       }
-            seuil_sup_na <- matrix(1, ncol = ncol(copula@pseudo_data) - length(copula@margins),
-                                   nrow = nrow(rows_na)) %>% magrittr::set_colnames(colnames(seuil_inf[,
-                                                                                                       -copula@margins])) %>% {
-                                                                                                         cbind(rows_na, .)
-                                                                                                       }
+              #construct the exeptional box :
+              boxes <- rbind(boxes, rep(0,d))
+              boxes_sup <- rbind(boxes+1/m, rep(1,d))
 
-            # FInaly, grouping thoose bounds :
-            seuil_inf_final <- rbind(seuil_inf_na, seuil_inf_not_na) %>% arrange(n_sim) %>%
-              select(-n_sim, -num_row)
-            seuil_sup_final <- rbind(seuil_sup_na, seuil_sup_not_na) %>% arrange(n_sim) %>%
-              select(-n_sim, -num_row)
+              # then simulate from thoose boxes :
+              inf_seuil <- boxes[simu_boxes_nb,-J]
+              sup_seuil <- boxes_sup[simu_boxes_nb,-J]
 
+            # Now that we have inf and sup bounds, we can simulates :
+            rng <- matrix(runif((d - p) * n), nrow = n, ncol=d-p)
+            simu_check <- inf_seuil + rng * (sup_seuil - inf_seuil)
+            # Finaly, bind together the 2 parts :
+            rez <- matrix(NA,nrow=n,ncol=d)
+            rez[,  J] <- simu_known_cop
+            rez[, -J] <- simu_check
 
-            # Fourth step : simulate the checkerboard part via uniforms :
-            rng <- matrix(runif((ncol(copula@pseudo_data) - length(copula@margins)) *
-                                  n), nrow = n, byrow = FALSE)
-            simu_checkerboard <- as.data.frame(seuil_inf_final + rng * (seuil_sup_final -
-                                                                          seuil_inf_final))
-
-
-            # Last step : add the known part of the simulation and return the
-            # result :
-            simu_known_cop %>% magrittr::set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
-              cbind(simu_checkerboard) %>% select(colnames(copula@pseudo_data)) %>%
-              return
+            return(rez)
 
           })
 setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),
@@ -225,7 +205,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),
 
             J <- copula@margins
             d = dim(copula)
-            k = length(J)
+            p = length(J)
             m = copula@m
             boxes <- copula@precalc$pCopula$box_inf
             weights <- copula@precalc$pCopula$weights
@@ -249,7 +229,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),
             # lebegue copula measure on it's margins, per box :
             mes_lebesgue <- sapply(intersections, function(inter) {
               prod(inter$max[-J] - inter$min[-J])
-            }) * (m^(d - k))  # renormalised by size of a -J box
+            }) * (m^(d - p))  # renormalised by size of a -J box
 
             # final value :
             sum(mes_known * mes_lebesgue * weights[!are_empty])

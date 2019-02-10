@@ -1,4 +1,4 @@
-context("cbCopula tests")
+context("cbkmCopula tests")
 suppressWarnings(library(copula))
 library(empCop)
 data(LifeCycleSavings)
@@ -14,6 +14,9 @@ test_that("zero-row or null data.frame are coerced to indepcopula", {
   expect_equal(cbCopula(as.data.frame(matrix(0,nrow=0,ncol=5))),indepCopula(5))
 })
 
+
+########## A tester :
+      # We could check that pre-calculations are OK in the validity method.
 
 
 
@@ -37,6 +40,8 @@ test_that("zero-row or null data.frame are coerced to indepcopula", {
                                    if (!all(object@margins %in% 1:ncol(object@pseudo_data))) {
                                      errors <- c(errors, "provided margins number should be smaller than the number of dimention of empirical data")
                                    }
+
+                                   # We should also check that pre-calculations are done correctly.
                                    if (length(errors) == 0)
                                      TRUE else errors
                                  })
@@ -54,6 +59,10 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
   if (!pseudo) {
     x <- apply(x, 2, rank, na.last = "keep")/(nrow(x) + 1)
   }
+
+  # Préliminary : supression of row.names
+  row.names(x) <- NULL
+
   if (all(is.null(known_cop), is.null(margins_numbers))) {
     .cbCopula(pseudo_data = as.data.frame(x), m = m)
   } else {
@@ -116,17 +125,18 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
               return(matrix(NA, nrow = 0, ncol = ncol(copula@pseudo_data)))
             }
 
+            m = copula@m
+            d = ncol(copula@pseudo_data)
+            p = length(copula@margins)
+            J = copula@margins
+
             # Preliminary : a `sample` function more efficient (cf ?sample,
             # exemples)
             resample <- function(x, ...) x[sample.int(length(x), ...)]
 
-            # Préliminary : supression of row.names
-            row.names(copula@pseudo_data) <- NULL
-
             # Préliminary : calculation of boxes
-            seuil_inf = floor(copula@pseudo_data * copula@m)/copula@m
-            seuil_sup = seuil_inf + 1/copula@m
-
+            seuil_inf = floor(copula@pseudo_data * m)/m
+            seuil_sup = seuil_inf + 1/m
 
             # First step : simulate the known copula model.
             simu_known_cop <- rCopula(n, copula@known_cop)
@@ -134,12 +144,13 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
             # Second step : Calculate the boxes that corespond to thoose
             # simulations, and add to them the number of rows corresponding to
             # observations (if they exist)
-            simulated_box_with_row_number <- (floor(simu_known_cop * copula@m)/copula@m) %>%
+            simulated_box_with_row_number <- (floor(simu_known_cop * m)/m) %>%
               as.data.frame()
-            colnames(simulated_box_with_row_number) <- colnames(copula@pseudo_data)[copula@margins]
+            colnames(simulated_box_with_row_number) <- colnames(copula@pseudo_data)[J]
             simulated_box_with_row_number <- simulated_box_with_row_number %>%
-              mutate(n_sim = 1:n) %>% left_join(as.data.frame(seuil_inf[,
-                                                                        copula@margins]) %>% mutate(num_row = 1:nrow(seuil_inf)))
+              mutate(n_sim = 1:n) %>%
+              left_join(as.data.frame(seuil_inf[,J]) %>%
+                          mutate(num_row = 1:nrow(seuil_inf)))
 
             # Third step : Differenciate simulation fallen in existing boxes et
             # simulations outside existing boxes. Indeed, the checkerboard part of
@@ -148,14 +159,14 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
             # Les simulations qui sont tombées dans des boites existantes : For
             # simulations that felt in existing boxes, we need to choose a line to
             # attach them alowing us to simulate in the right box.
-            rows_not_na <- simulated_box_with_row_number %>% filter(!is.na(num_row)) %>%
-              group_by(n_sim) %>% summarise(num_row = resample(num_row, 1))
+            rows_not_na <- simulated_box_with_row_number %>%
+              filter(!is.na(num_row)) %>%
+              group_by(n_sim) %>%
+              summarise(num_row = resample(num_row, 1))
 
             # Corresponding Bounds
-            seuil_inf_not_na <- cbind(rows_not_na, seuil_inf[rows_not_na$num_row,
-                                                             -copula@margins])
-            seuil_sup_not_na <- cbind(rows_not_na, seuil_sup[rows_not_na$num_row,
-                                                             -copula@margins])
+            seuil_inf_not_na <- cbind(rows_not_na, seuil_inf[rows_not_na$num_row, -J])
+            seuil_sup_not_na <- cbind(rows_not_na, seuil_sup[rows_not_na$num_row, -J])
 
             # For simulations that did NOT felt in existing boxes, we simulate with
             # all possible range, i.e the Bounds are 0 and 1 for the checkerboard
@@ -164,35 +175,35 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
               select(colnames(rows_not_na))
 
             # Bounds for non-existing boxes : 0 or 1.
-            seuil_inf_na <- matrix(0, ncol = ncol(copula@pseudo_data) - length(copula@margins),
-                                   nrow = nrow(rows_na)) %>% magrittr::set_colnames(colnames(seuil_inf[,
-                                                                                                       -copula@margins])) %>% {
-                                                                                                         cbind(rows_na, .)
-                                                                                                       }
-            seuil_sup_na <- matrix(1, ncol = ncol(copula@pseudo_data) - length(copula@margins),
-                                   nrow = nrow(rows_na)) %>% magrittr::set_colnames(colnames(seuil_inf[,
-                                                                                                       -copula@margins])) %>% {
-                                                                                                         cbind(rows_na, .)
-                                                                                                       }
+            seuil_inf_na <- matrix(0, ncol = d - p, nrow = nrow(rows_na)) %>%
+              magrittr::set_colnames(colnames(seuil_inf[,-J])) %>%
+              {cbind(rows_na, .)}
+            seuil_sup_na <- matrix(1, ncol = d - p, nrow = nrow(rows_na)) %>%
+              magrittr::set_colnames(colnames(seuil_inf[,-J])) %>%
+              {cbind(rows_na, .)}
 
-            # FInaly, grouping thoose bounds :
-            seuil_inf_final <- rbind(seuil_inf_na, seuil_inf_not_na) %>% arrange(n_sim) %>%
-              select(-n_sim, -num_row)
-            seuil_sup_final <- rbind(seuil_sup_na, seuil_sup_not_na) %>% arrange(n_sim) %>%
-              select(-n_sim, -num_row)
+            # Finaly, grouping thoose bounds :
+            binding <- function(x,y){
+              rbind(x,y) %>%
+                arrange(n_sim) %>%
+                select(-n_sim, -num_row)
+            }
 
+            seuil_inf_final <- binding(seuil_inf_na, seuil_inf_not_na)
+            seuil_sup_final <- binding(seuil_sup_na, seuil_sup_not_na)
 
             # Fourth step : simulate the checkerboard part via uniforms :
-            rng <- matrix(runif((ncol(copula@pseudo_data) - length(copula@margins)) *
-                                  n), nrow = n, byrow = FALSE)
+            rng <- matrix(runif((d - p) * n), nrow = n, byrow = FALSE)
             simu_checkerboard <- as.data.frame(seuil_inf_final + rng * (seuil_sup_final -
                                                                           seuil_inf_final))
 
 
             # Last step : add the known part of the simulation and return the
             # result :
-            simu_known_cop %>% magrittr::set_colnames(colnames(copula@pseudo_data)[copula@margins]) %>%
-              cbind(simu_checkerboard) %>% select(colnames(copula@pseudo_data)) %>%
+            simu_known_cop %>%
+              magrittr::set_colnames(colnames(copula@pseudo_data)[J]) %>%
+              cbind(simu_checkerboard) %>%
+              select(colnames(copula@pseudo_data)) %>%
               return
 
           })
