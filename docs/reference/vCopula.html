@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Copula volume on hyper-boxes — vCopula" />
 
-<meta property="og:description" content="Copula volume on hyper-boxes" />
+<meta property="og:description" content="#' u must be piecewise smaller than v, otherwise the function will return an error." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,7 +124,7 @@
 
     <div class="ref-description">
     
-    <p>Copula volume on hyper-boxes</p>
+    <p>#' u must be piecewise smaller than v, otherwise the function will return an error.</p>
     
     </div>
 
@@ -147,14 +147,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>other parameter to be passed to methods for this generic.</p>
-<p>u must be piecewise smaller than v, otherwise the function will return an error.</p>
-<p>A method is currently implemented for the main virtual class 'Copula', but it assumes
-that a pCopula method is avaliable for the given copula.</p>
-<p>This function calculates the measure of the copula according to the algorythme proposed by :
-Umberto Cherubini &amp; Silvia Romagnoli (2009) Computing the
-Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DOI:
-  10.1080/13504860802597311 link : http://dx.doi.org/10.1080/13504860802597311</p></td>
+      <td><p>other parameter to be passed to methods for this generic.</p></td>
     </tr>
     </table>
     
@@ -162,15 +155,24 @@ Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DO
 
     <p>the measure of the copula</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>A method is currently implemented for the main virtual class 'Copula', but it assumes
+that a pCopula method is avaliable for the given copula.</p>
+<p>This function calculates the measure of the copula according to the algorythme proposed by :
+Umberto Cherubini &amp; Silvia Romagnoli (2009) Computing the
+Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DOI:
+  10.1080/13504860802597311 link : <a href='http://dx.doi.org/10.1080/13504860802597311'>http://dx.doi.org/10.1080/13504860802597311</a></p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># For a simple one-dimentional input :</span>
 <span class='no'>cop</span> <span class='kw'>=</span> <span class='kw pkg'>copula</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/copula/topics/archmCopula'>archmCopula</a></span>(<span class='st'>'Clayton'</span>,<span class='fl'>0.7</span>,<span class='fl'>3</span>)
 <span class='fu'>vCopula</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>3</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>1</span>,<span class='fl'>3</span>),<span class='no'>cop</span>)</div><div class='output co'>#&gt; [1] 1</div><div class='input'>
 <span class='co'># the function is vectorised :</span>
-<span class='no'>v</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='kw'>length.out</span><span class='kw'>=</span><span class='fl'>12</span>),<span class='kw'>ncol</span><span class='kw'>=</span><span class='fl'>3</span>)
+<span class='no'>u</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='kw'>length.out</span><span class='kw'>=</span><span class='fl'>12</span>),<span class='kw'>ncol</span><span class='kw'>=</span><span class='fl'>3</span>)
 <span class='no'>v</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>12</span>),<span class='kw'>ncol</span><span class='kw'>=</span><span class='fl'>3</span>)
-<span class='fu'>vCopula</span>(<span class='no'>u</span>,<span class='no'>v</span>,<span class='no'>cop</span>)</div><div class='output co'>#&gt; <span class='error'>Error in vCopula(u, v, cop): objet 'u' introuvable</span></div></pre>
+<span class='fu'>vCopula</span>(<span class='no'>u</span>,<span class='no'>v</span>,<span class='no'>cop</span>)</div><div class='output co'>#&gt; <span class='error'>Error in .local(u, v, copula, ...): u must be smaller than v !</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -178,6 +180,8 @@ Volume of n-Dimensional Copulas, Applied Mathematical Finance, 16:4, 307-314, DO
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

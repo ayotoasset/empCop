@@ -24,10 +24,22 @@ cbCopula = function(x, m = nrow(x), pseudo = FALSE) {
   if (missing(x)) {
     stop("The argument x must be provided")
   }
+
+  if(ncol(x) == 0){
+    stop("you are providing a data.frame equal to NULL")
+  }
+
+  if(nrow(x) == 0){
+    return(indepCopula(ncol(x)))
+  }
+
   if (!pseudo) {
     x <- apply(x, 2, rank, na.last = "keep")/(nrow(x) + 1)
   }
-  .cbCopula(pseudo_data = as.data.frame(x), m = m)
+
+
+
+  return(.cbCopula(pseudo_data = as.data.frame(x), m = m))
 }
 setMethod(f = "show", signature = c(object = "cbCopula"), definition = function(object) {
   cat("This is a cbCopula , with : \n", "  dim =", dim(object), "\n   n =",
@@ -37,24 +49,12 @@ setMethod(f = "show", signature = c(object = "cbCopula"), definition = function(
 setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbCopula"),
           definition = function(n, copula) {
 
-            # The parameter n represent the number of generated values.  if n=0,
-            # return a 0xdim matrix :
+            # if n=0, return a 0xdim matrix :
             if (n == 0) {
-              return(matrix(NA, nrow = 0, ncol = ncol(copula@pseudo_data)))
+              return(matrix(0, nrow = 0, ncol = ncol(copula@pseudo_data)))
             }
-            # The pseudo_data should be a matrix or a dataframe, with one row per
-            # value and one column per variable.
 
-            # The parameter m represent the size of the grid : bigger m means
-            # smaller grid.
-
-            # The structure (column names) will be preserved in the output, the
-            # row_names will indicate the riginal row that builded the box and the
-            # result will be converted to data.frame
-
-            # First, let's define the boxes containing the pseudo observations :
             # Since it's a checkerboard, the boxes a regular with side length 1/m,
-            # so calculating the right boxes is easy :
             seuil_inf = floor(copula@pseudo_data * copula@m)/copula@m
             seuil_sup = seuil_inf + 1/copula@m
 
@@ -104,4 +104,9 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbCopula"),
 
             return(rez)
           })
+setMethod(f="dCopula", signature(u = "matrix",copula="cbCopula"),definition=function(u,copula){
+  stop("Checkerboard copula has no density")
+})
+
+
 

@@ -32,7 +32,7 @@ NULL
 #'
 #' # the function is vectorised :
 #' v=matrix(seq(0,1,length.out=12),ncol=3)
-#' v=matrix(rep(0,12),ncol=3)
+#' u=matrix(rep(0,12),ncol=3)
 #' vCopula(u,v,cop)
 setGeneric("vCopula", function(u, v, copula, ...) {
 
