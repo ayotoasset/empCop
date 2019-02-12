@@ -41,13 +41,12 @@ cbCopula = function(x, m = nrow(x), pseudo = FALSE) {
 
   return(.cbCopula(pseudo_data = as.data.frame(x), m = m))
 }
-setMethod(f = "show", signature = c(object = "cbCopula"), definition = function(object) {
+setMethod(f = "show",    signature = c(object = "cbCopula"),                definition = function(object)    {
   cat("This is a cbCopula , with : \n", "  dim =", dim(object), "\n   n =",
       nrow(object@pseudo_data), "\n   m =", object@m, "\n")
   cat("The variables names are : ", colnames(object@pseudo_data))
 })
-setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbCopula"),
-          definition = function(n, copula) {
+setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbCopula"), definition = function(n, copula) {
 
             # if n=0, return a 0xdim matrix :
             if (n == 0) {
@@ -77,8 +76,7 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbCopula"),
 
             return(result)
           })
-setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbCopula"),
-          definition = function(u, copula) {
+setMethod(f = "pCopula", signature = c(u = "matrix",  copula = "cbCopula"), definition = function(u, copula) {
 
             # remind that pCopula and dCopula generics already transform inputs
             # into matrices...
@@ -92,19 +90,16 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbCopula"),
             n = nrow(copula@pseudo_data)
             rez <- vector(length = nrow(u))
 
-            for (i in 1:nrow(u)) {
-              ponderation <- t(apply(seuil_inf, 1, function(y) {
-                u[i, ] - y
-              }))
+            rez <- sapply(1:nrow(u), function(i) {
+              ponderation <- t(apply(seuil_inf, 1, function(y) { u[i, ] - y }))
               ponderation <- pmax(pmin(ponderation, 1/copula@m), 0)
-              rez[i] <- sum(apply(ponderation, 1, function(v) {
-                (prod(v) * copula@m^d)
-              }))/n
-            }
+
+              sum(apply(ponderation, 1, function(v) { (prod(v) * copula@m^d) }))/n
+            })
 
             return(rez)
           })
-setMethod(f="dCopula", signature(u = "matrix",copula="cbCopula"),definition=function(u,copula){
+setMethod(f = "dCopula", signature = c(u = "matrix",  copula="cbCopula"),   definition = function(u, copula) {
   stop("Checkerboard copula has no density")
 })
 

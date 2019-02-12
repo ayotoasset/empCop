@@ -3,15 +3,6 @@ NULL
 
 
 ############################### ConvexComCopula class #######
-
-
-#' ConvexCombCopula class
-#'
-#' @slot copulas list of copulas of same dimension
-#' @slot alpha numeric. A vector of (positive) weights.
-#'
-#' @return a ConvexCombCopula object.
-#' @export
 .ConvexCombCopula = setClass(Class = "ConvexCombCopula", contains = "Copula",
                              slots = c(copulas = "list", alpha = "numeric"), validity = function(object) {
                                errors <- c()
@@ -24,7 +15,10 @@ NULL
                                  errors <- c(errors, "parameter copulas should contains a list of copulas")
                                }
                                if (!all(object@alpha >= 0)) {
-                                 errors <- c(errors, "weights should be positive")
+                                 errors <- c(errors, "weights should be positives")
+                               }
+                               if(sum(object@alpha) != 1){
+                                 errors <- c(errors,"weights should add up to 1.")
                                }
                                if (!(length(unique(sapply(object@copulas, dim))) == 1)) {
                                  errors <- c(errors, "all copulas must have same dimension")
@@ -60,19 +54,18 @@ ConvexCombCopula = function(copulas, alpha = rep(1, length(copulas))) {
   if (missing(copulas) || (!is(copulas, "list"))) {
     stop("The argument copulas must be provided as a list of copulas")
   }
-  .ConvexCombCopula(copulas = copulas, alpha = alpha)
+  .ConvexCombCopula(copulas = copulas, alpha = alpha/sum(alpha))
 }
-setMethod(f = "dim", signature = (x = "ConvexCombCopula"), definition = function(x) {
+setMethod(f = "dim",     signature = (x = "ConvexCombCopula"),                      definition = function(x)         {
   return(dim(x@copulas[[1]]))
 })
-setMethod(f = "show", signature = c(object = "ConvexCombCopula"), definition = function(object) {
+setMethod(f = "show",    signature = c(object = "ConvexCombCopula"),                definition = function(object)    {
   cat("This is a ConvexCombCopula , with : \n", "  dim =", dim(object@copulas[[1]]),
       "\n   number of copulas =", length(object@copulas), "\n   alpha =",
       object@alpha, "\n")
   cat("sub-copulas can be accessed trhough the @copulas slot")
 })
-setMethod(f = "rCopula", signature = c(n = "numeric", copula = "ConvexCombCopula"),
-          definition = function(n, copula) {
+setMethod(f = "rCopula", signature = c(n = "numeric", copula = "ConvexCombCopula"), definition = function(n, copula) {
 
             # to choose wich copulas will be simulated from, sample
             # 1:length(copulas) with weights equal to alpha, with replacement OFC
@@ -92,8 +85,7 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "ConvexCombCopula
                                       replace = FALSE), ]
             return(samples)
           })
-setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"),
-          definition = function(u, copula) {
+setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"),  definition = function(u, copula) {
 
             # remind that pCopula and dCopula generics already transform inputs
             # into matrices...  remind that pCopula and dCopula generics already
@@ -101,17 +93,21 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"
             if (ncol(u) != dim(copula)) {
               stop("the input value must be coerçable to a matrix with dim(copula) columns.")
             }
+#
+#             outputs <- lapply(1:length(copula@copulas), function(i) {
+#               pCopula(u, copula@copulas[[i]]) * copula@alpha[i]
+#             })
+#
+#             rez <- Reduce("+",outputs)
+#             return(rez)
+#             # taken from the mixCopula class.
+              as.vector(
+                vapply(copula@copulas, pCopula, FUN.VALUE=numeric(nrow(u)), u=u)
+                %*%
+                  copula@alpha)
 
-            outputs <- lapply(copula@copulas, function(cop) {
-              pCopula(u, cop)
-            })
 
-            rez <- outputs[[1]] * copula@alpha[1]
-            for (i in 2:length(outputs)) {
-              rez <- rez + outputs[[i]] * copula@alpha[i]
-            }
 
-            return(rez)
 
           })
 
@@ -121,24 +117,33 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"
 # next step will be to use this class to perform an automatic-weighting
 # of the copulas;
 
-# e.g we could perform a weighting by looking at some distance on the
-# copula space to the empirical copula of some data.  2 questions
-# arises naturaly : Q1 : Wich distance ?  Q2 : how to be shure we are
-# not overfitting with this distance ? i.e penalisation.
+# We need a function to fit a ConvexCombCopula, given marginals copulas and data.
 
-# So we need a distance on the copula space, and some tests based on
-# it.  The distance of the model to the empirical copula on the
-# empirical points will be our 'goodness of fit' measure.
 
-# We need to implement distances on the copula space to the empirical
-# copula... This seems rather dificult
-
-# We also need to implement the pcopula function for all of thoose
-# copulas.
-
-# for exemple, we could :
-
-# 1) use the quadratic distance on a pseudo dataset? with bootstrap of
-# this dataset ?
-
+# e.g we could weights them on the pCopula of each data point. Weights more the copula that has better likelyhood.
 #
+# mixing_crit <- function(copulas,pseudo_data){
+#   # for each copula, calculate the value of the copula on each data point :
+#
+#   errors <- sapply(copulas,function(cop){
+#     (pCopula(u=pseudo_data,copula=cop)-pCopula(u=pseudo_data,copula=empCopula(pseudo_data)))^2
+#   })
+#
+#   #errors is a matrix with n_copula columns and nrow(pseudo_data) rows.
+#   return(sqrt(colSums(errors)))
+# }
+#
+#
+# availiables_m <- function(n){
+#   m <- 1:n
+#   m[n%%m==0]
+# }
+#
+# m <- availiables_m(nrow(pseudo_data))
+# copulas <- sapply(m,function(i){cbCopula(pseudo_data,pseudo=FALSE,m = i)})
+# rmse <- mixing_crit(copulas,pseudo_data)
+# plot(m,rmse,type="b")
+#
+#
+
+

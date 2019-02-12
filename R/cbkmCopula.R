@@ -1,7 +1,6 @@
 #' @include generics.R empiricalCopula.R
 NULL
 
-
 ############################### Checkerboard with known margin copula class #######
 .cbkmCopula = setClass(Class = "cbkmCopula", contains = "empiricalCopula",
                        slots = c(m = "numeric", margins = "numeric", known_cop = "Copula",
@@ -23,6 +22,12 @@ NULL
                                      TRUE else errors
                                  })
 #' cbkmCopula contructor
+#'
+#' Given some empirical data, and given some knwon copula estimation on a sub-vector of this data,
+#' the checkerboar with known margins construction consist in
+#' a conditional pattern where the checkerboar part is conditional on the known part of the copula
+#' This allows for high-dimensional-aware contructions.
+#'
 #'
 #' @param x the data to be used
 #' @param m checkerboard parameter
@@ -56,8 +61,7 @@ NULL
 #' u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
 #'
 #' pCopula(u,cop)
-cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
-                      known_cop = NULL) {
+cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL) {
   if (missing(x)) {
     stop("The argument x must be provided")
   }
@@ -116,28 +120,27 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
 
 
 }
-setMethod(f = "show", signature = c(object = "cbkmCopula"), definition = function(object) {
+setMethod(f = "show",    signature = c(object = "cbkmCopula"),                definition = function(object)    {
   cat("This is a cbkmCopula , with : \n", "  dim =", dim(object), "\n   n =",
       nrow(object@pseudo_data), "\n   m =", object@m, "\n")
   cat("The variables names are : ", colnames(object@pseudo_data), "\n")
   cat("The variables ", object@margins, " have a known copula  given by :\n")
   writeLines(paste("\t", capture.output(show(object@known_cop)), sep = ""))
 })
-setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
-          definition = function(n, copula) {
+setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"), definition = function(n, copula) {
 
-            # if n=0, return a 0xdim matrix :
+            # if n=0, return a 0xdim(copula) matrix :
             if (n == 0) {
-              return(matrix(NA, nrow = 0, ncol = ncol(copula@pseudo_data)))
+              return(matrix(NA, nrow = 0, ncol = dim(copula)))
             }
 
+            # get copula infos :
             J <- copula@margins
             d = dim(copula)
             p = length(J)
             m = copula@m
             boxes <- copula@precalc$pCopula$box_inf
-            nb_emp <- copula@precalc$pCopula$nb_emp
-            nb_emp_J <- copula@precalc$pCopula$nb_emp_J
+            n_box <- nrow(boxes)
             weights <- copula@precalc$pCopula$weights
 
             # Preliminary : a `sample` function more efficient (cf ?sample,
@@ -145,19 +148,16 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
             resample <- function(x, ...) x[sample.int(length(x), ...)]
 
             # First step : simulate the known copula model.
-            simu_known_cop <- rCopula(n, copula@known_cop)
+            rez <- matrix(NA,nrow=n,ncol=d)
+            rez[,J] <- rCopula(n, copula@known_cop)
 
             # Second step : Calculate the boxes that corespond to thoose simulations
-            inf_seuil <- matrix(NA,nrow=n,ncol=d-p)
-            sup_seuil <- matrix(NA,nrow=n,ncol=d-p)
-
-              # found wich boxes were simulated on the J part :
-              simu_boxes <- floor(simu_known_cop * m)/m
+              # find out wich boxes were simulated on the J part :
+              simu_boxes <- floor(rez[, J] * m)/m
               # get the corresponding boxes number
               simu_boxes_nb <- apply(simu_boxes,1,function(x){
-
                 # several boxes are avaliable with thoose J coordinates.
-                possibles_boxes <- which(sapply(1:nrow(boxes),function(i){all(boxes[i,J] == x)}))
+                possibles_boxes <- which(colSums(t(boxes[,J]) == x) == p)
 
                 # Differenciate simulation fallen in existing boxes et
                 # simulations outside existing boxes. Indeed, the checkerboard part of
@@ -166,9 +166,9 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
                 # We will construct an exeptional box for that :
                 # sample one of thoose with the weights, OR the [0,1]^(d-p) box if all weights are 0
                 if(sum(weights[possibles_boxes]) == 0){
-                  return(nrow(boxes)+1) # we return the box number n_box+1
+                  return(n_box+1) # we return the box number n_box+1
                 } else {
-                  resample(possibles_boxes,size=1,prob = weights[possibles_boxes],replace = TRUE)
+                  return(resample(possibles_boxes,size=1,prob = weights[possibles_boxes],replace = TRUE))
                 }
               })
 
@@ -179,60 +179,71 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"),
               # then simulate from thoose boxes :
               inf_seuil <- boxes[simu_boxes_nb,-J]
               sup_seuil <- boxes_sup[simu_boxes_nb,-J]
-
-            # Now that we have inf and sup bounds, we can simulates :
-            rng <- matrix(runif((d - p) * n), nrow = n, ncol=d-p)
-            simu_check <- inf_seuil + rng * (sup_seuil - inf_seuil)
-            # Finaly, bind together the 2 parts :
-            rez <- matrix(NA,nrow=n,ncol=d)
-            rez[,  J] <- simu_known_cop
-            rez[, -J] <- simu_check
+              rng <- matrix(runif((d - p) * n), nrow = n, ncol=d-p)
+              rez[, -J] <- inf_seuil + rng * (sup_seuil - inf_seuil)
 
             return(rez)
 
           })
-setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),
-          definition = function(u, copula) {
+setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  definition = function(u, copula) {
             # this function implements the formula for the mesure of the copula
             # given in the paper.  remind that pCopula and dCopula generics already
             # transform inputs into matrices...
+
+            # could be much better vectorised...
+
+
             if (ncol(u) != dim(copula)) {
               stop("the input value must be coerçable to a matrix with dim(copula) columns.")
             }
-            if (nrow(u) > 1) {
-              return(apply(u, 1, pCopula, copula))
-            }
 
+            # Prerequisites :
             J <- copula@margins
             d = dim(copula)
             p = length(J)
             m = copula@m
             boxes <- copula@precalc$pCopula$box_inf
             weights <- copula@precalc$pCopula$weights
-
-            # Let's calculate the intersection of [0,u] with boxes :
             y_min = rep(0, d)
-            intersections <- apply(boxes, 1, function(box_infi) {
-              suppressWarnings(intersect(x_min = box_infi, x_max = box_infi +
-                                           1/m, y_min = y_min, y_max = u))
-            })
 
-            # Contribution of empty intersections will clearly be zero
-            are_empty <- sapply(intersections, is.null)
-            intersections <- intersections[!are_empty]
 
-            # mesure of the known copula on it's margins, per box :
-            mes_known <- sapply(intersections, function(inter) {
-              vCopula(inter$min[J], inter$max[J], copula@known_cop)
-            })
+            # Function that does the calculations for one value of u :
+            unit_calculation <- function(u){
+              # Let's calculate the intersection of [0,u] with boxes :
+              intersections <- apply(boxes, 1, function(box_inf) {
+                suppressWarnings(intersect(x_min = box_inf,
+                                           x_max = box_inf + 1/m,
+                                           y_min = y_min,
+                                           y_max = u))
+              })
 
-            # lebegue copula measure on it's margins, per box :
-            mes_lebesgue <- sapply(intersections, function(inter) {
-              prod(inter$max[-J] - inter$min[-J])
-            }) * (m^(d - p))  # renormalised by size of a -J box
+              # Contribution of empty intersections will clearly be zero
+              are_empty <- sapply(intersections, is.null)
+              intersections <- intersections[!are_empty]
+              inter_min <- sapply(intersections,function(x){x$min}) # d x nb_inter matrix
+              inter_max <- sapply(intersections,function(x){x$max}) # d x nb_inter matrix
 
-            # final value :
-            sum(mes_known * mes_lebesgue * weights[!are_empty])
+              # mesure of the known copula on it's margins, per box :
+              mes_known <- vCopula(t(inter_min[J,]),t(inter_max[J,]),copula@known_cop)
+
+              # lebegue copula measure on it's margins, per box :
+              mes_lebesgue <- apply(inter_max[-J,] - inter_min[-J,],2,prod)*(m^(d-p))
+
+              # final value :
+              sum(mes_known * mes_lebesgue * weights[!are_empty])
+            }
+
+            # Applying :
+            if (nrow(u) > 1) {
+              return(apply(u, 1, unit_calculation))
+            } else {
+              unit_calculation(u)
+            }
 
           })
+setMethod(f = "dCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  definition = function(u, copula) {
+  stop("Checkerboard copula with known margins has no density")
+})
+
+
 
