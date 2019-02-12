@@ -22,7 +22,10 @@ cbkmCopula(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
 a cbCopula object
 }
 \description{
-cbkmCopula contructor
+Given some empirical data, and given some knwon copula estimation on a sub-vector of this data,
+the checkerboar with known margins construction consist in
+a conditional pattern where the checkerboar part is conditional on the known part of the copula
+This allows for high-dimensional-aware contructions.
 }
 \examples{
 true_copula <- onacopulaL(family = 'Clayton',
