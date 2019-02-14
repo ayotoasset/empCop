@@ -5,7 +5,7 @@
 \title{cbkmCopula contructor}
 \usage{
 cbkmCopula(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
-  known_cop = NULL)
+  known_cop = NULL, quiet = FALSE)
 }
 \arguments{
 \item{x}{the data to be used}

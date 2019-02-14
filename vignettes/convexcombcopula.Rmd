@@ -1,5 +1,5 @@
 ---
-title: "Convex combination of copulas"
+title: "Convex combination of checkerbords with known margins"
 author: "Vignette Author"
 date: "`r Sys.Date()`"
 output:
@@ -45,5 +45,87 @@ pCopula(c(0.5,0.7),cop)
 
 
 The number of copulas is not restricte. Avaliables methods are for the moment `rCopula` and `pCopula`. 
+
+
+For exemple, given a dataset, we could optimise each copula first and them optimise weights, based on some criterion, e.g rmse. 
+
+
+```{r}
+data("LifeCycleSavings")
+pseudo_dataset <- apply(LifeCycleSavings[sample(1:50,size=20),],2,rank)/(nrow(LifeCycleSavings)+1)
+d <- ncol(pseudo_dataset)
+pairs(pseudo_dataset)
+```
+
+For exemple, let's start from checkerboards(m=10) with known bivariate clayton margins. Since only the variables 2 to 4 seems to be non-independant, we will calculate cbkmCopulas only for thoose.
+
+```{r}
+
+cbkm_clayton <- function(data,margins,m=10){
+  
+  known_copula <- 
+    archmCopula("Clayton",dim=2,
+                param = coef(fitCopula(
+                  archmCopula("Clayton",dim = length(margins)),
+                  data[,margins],
+                  method="itau")))
+  
+  cbkmCopula(data,
+             m=m,
+             pseudo=TRUE,
+             margins_numbers = margins,
+             known_cop = known_copula,
+             quiet=TRUE
+  )
+}
+
+couples <- as.matrix(expand.grid(2:4,2:4))
+couples <- couples[couples[,1]<couples[,2],]
+
+copulas <- list()
+copulas[[1]] <- cbCopula(pseudo_dataset,pseudo=TRUE,m=4)
+
+for(i in 1:nrow(couples)){
+  copulas[[i+1]] <- cbkm_clayton(pseudo_dataset,couples[i,])
+}
+
+
+```
+
+
+For exemple, we can draw a simulations from the first cbkmCopula : 
+
+```{r}
+pairs(rCopula(1000,copulas[[2]]))
+```
+
+Now that we have all thoose fits, we can optimise weights regarding a certain criterion. 
+
+Here the criterion will be the RMSE on the dataset : 
+
+```{r}
+rmse <- function(alpha,cop,data,pEmpCop){
+    sqrt(sum((pCopula(u=data,copula=cop) - pEmpCop)^2))
+}
+
+criterion <- function(alpha = rep(1/length(cops),length(cops)),cops,data){
+  pEmpCop <- pCopula(u=data,copula=empCopula(data))
+  cop <- ConvexCombCopula(copulas = cops,alpha = alpha)
+  rmse(alpha,cop,data,pEmpCop)
+}
+
+#criterion(cops = copulas,data = pseudo_dataset)
+```
+
+
+This implmeentation is not finished because the actual implementation of the pCopula function is clearly not good enough (not fast enough) to include cbkmCopulas in this process. 
+
+The solution to spee things up is to pass coputations to C++ instead of R. Will do soon.
+
+
+
+
+
+
 
 

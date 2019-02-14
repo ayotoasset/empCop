@@ -61,7 +61,7 @@ NULL
 #' u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
 #'
 #' pCopula(u,cop)
-cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL) {
+cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL,quiet=FALSE) {
   if (missing(x)) {
     stop("The argument x must be provided")
   }
@@ -78,7 +78,7 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
   } else {
 
     ######## pCopula precalculations :
-    message("Doing precalculations...")
+    if(!quiet){message("Doing precalculations...")}
     # construct boxes :
     box_inf <- do.call(expand.grid, lapply(1:ncol(x), function(x) {
       seq(0, 1 - 1/m, length = m)
@@ -113,7 +113,7 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
     pCopula_precalculations <- list(box_inf = box_inf, nb_emp = nb_emp,
                                     nb_emp_J = nb_emp_J, weights = weights)
     ######## Returning the objec :
-    message("Done !")
+    if(!quiet){message("Done !")}
     .cbkmCopula(pseudo_data = as.data.frame(x), m = m, margins = margins_numbers,
                 known_cop = known_cop, box_inf = box_inf, precalc = list(pCopula = pCopula_precalculations))
   }

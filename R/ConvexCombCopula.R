@@ -106,44 +106,5 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"
                 %*%
                   copula@alpha)
 
-
-
-
           })
-
-
-# Okay.
-
-# next step will be to use this class to perform an automatic-weighting
-# of the copulas;
-
-# We need a function to fit a ConvexCombCopula, given marginals copulas and data.
-
-
-# e.g we could weights them on the pCopula of each data point. Weights more the copula that has better likelyhood.
-#
-# mixing_crit <- function(copulas,pseudo_data){
-#   # for each copula, calculate the value of the copula on each data point :
-#
-#   errors <- sapply(copulas,function(cop){
-#     (pCopula(u=pseudo_data,copula=cop)-pCopula(u=pseudo_data,copula=empCopula(pseudo_data)))^2
-#   })
-#
-#   #errors is a matrix with n_copula columns and nrow(pseudo_data) rows.
-#   return(sqrt(colSums(errors)))
-# }
-#
-#
-# availiables_m <- function(n){
-#   m <- 1:n
-#   m[n%%m==0]
-# }
-#
-# m <- availiables_m(nrow(pseudo_data))
-# copulas <- sapply(m,function(i){cbCopula(pseudo_data,pseudo=FALSE,m = i)})
-# rmse <- mixing_crit(copulas,pseudo_data)
-# plot(m,rmse,type="b")
-#
-#
-
 
