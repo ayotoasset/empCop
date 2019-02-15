@@ -1,4 +1,6 @@
 #' @include generics.R
+#' @useDynLib empCop, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 NULL
 
 number2binary = function(number, noBits) {
@@ -45,22 +47,6 @@ setMethod("vCopula", signature = c(u = "matrix", v = "matrix", copula = "Copula"
         }
 
     })
-
-intersect <- function(x_min, x_max, y_min, y_max) {
-    # retourne l'intersection es deux rectangles [x_min,x_max] et
-    # [y_min,y_max] sous la forme d'un rectangle [rez_min,rez_max]
-
-    rez <- list()
-    rez$min <- pmax(x_min, y_min)
-    rez$max <- pmin(x_max, y_max)
-
-    # checker que c'est pas l'ensemble vide :
-    if (any(rez$min > rez$max)) {
-        warning("Ensemble vide ! On return NULL.")
-        return(NULL)
-    }
-    return(rez)
-}
 
 
 

@@ -65,6 +65,15 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
   if (missing(x)) {
     stop("The argument x must be provided")
   }
+
+  if(ncol(x) == 0){
+    stop("you are providing a data.frame equal to NULL")
+  }
+
+  if(nrow(x) == 0){
+    return(indepCopula(ncol(x)))
+  }
+
   if ((is.null(known_cop) && (!is.null(margins_numbers))) || (is.null(known_cop) &&
                                                               (!is.null(margins)))) {
     stop("known_cop argument and margins argument must both be provided.")
@@ -189,56 +198,60 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  de
             # this function implements the formula for the mesure of the copula
             # given in the paper.  remind that pCopula and dCopula generics already
             # transform inputs into matrices...
-
-            # could be much better vectorised...
+            # This function fasses arguments to the C implementation.
 
 
             if (ncol(u) != dim(copula)) {
               stop("the input value must be coerçable to a matrix with dim(copula) columns.")
             }
 
-            # Prerequisites :
-            J <- copula@margins
-            d = dim(copula)
-            p = length(J)
-            m = copula@m
-            boxes <- copula@precalc$pCopula$box_inf
-            weights <- copula@precalc$pCopula$weights
-            y_min = rep(0, d)
+            Cpp_pCopula_cbkmCopula(d_moins_J = (1:dim(copula))[-copula@margins],
+                                   J = copula@margins,
+                                   u = u,
+                                   boxes = copula@precalc$pCopula$box_inf,
+                                   size_box = 1/copula@m,
+                                   m = copula@m,
+                                   weights = copula@precalc$pCopula$weights,
+                                   vCopula_wrapper = function(x,y){
+                                     vCopula(t(x),t(y),copula@known_cop)
+                                   })
 
 
-            # Function that does the calculations for one value of u :
-            unit_calculation <- function(u){
-              # Let's calculate the intersection of [0,u] with boxes :
-              intersections <- apply(boxes, 1, function(box_inf) {
-                suppressWarnings(intersect(x_min = box_inf,
-                                           x_max = box_inf + 1/m,
-                                           y_min = y_min,
-                                           y_max = u))
-              })
+            # # Function that does the calculations for one value of u :
+            # unit_calculation <- function(u){
+            #   # Let's calculate the intersection of [0,u] with boxes :
+            #   intersections <- Cpp_intersections(boxes,1/m,u)
+            #
+            #
+            #   # Contribution of empty intersections will clearly be zero
+            #   are_empty <- sapply(intersections, function(x){is.null(x[[1]])})
+            #   intersections <- intersections[!are_empty]
+            #   inter_min <- sapply(intersections,function(x){x$min}) # d x nb_inter matrix
+            #   inter_max <- sapply(intersections,function(x){x$max}) # d x nb_inter matrix
+            #
+            #   # mesure of the known copula on it's margins, per box :
+            #   mes_known <- vCopula(t(inter_min[J,]),t(inter_max[J,]),copula@known_cop)
+            #
+            #   # lebegue copula measure on it's margins, per box :
+            #   mes_lebesgue <- apply(as.matrix(inter_max[-J,]) - as.matrix(inter_min[-J,]),2,prod)*(m^(d-p))
+            #
+            #   # final value :
+            #   sum(mes_known * mes_lebesgue * weights[!are_empty])
+            # }
 
-              # Contribution of empty intersections will clearly be zero
-              are_empty <- sapply(intersections, is.null)
-              intersections <- intersections[!are_empty]
-              inter_min <- sapply(intersections,function(x){x$min}) # d x nb_inter matrix
-              inter_max <- sapply(intersections,function(x){x$max}) # d x nb_inter matrix
-
-              # mesure of the known copula on it's margins, per box :
-              mes_known <- vCopula(t(inter_min[J,]),t(inter_max[J,]),copula@known_cop)
-
-              # lebegue copula measure on it's margins, per box :
-              mes_lebesgue <- apply(inter_max[-J,] - inter_min[-J,],2,prod)*(m^(d-p))
-
-              # final value :
-              sum(mes_known * mes_lebesgue * weights[!are_empty])
-            }
+            # calc <- function(u){
+            #
+            # }
 
             # Applying :
-            if (nrow(u) > 1) {
-              return(apply(u, 1, unit_calculation))
-            } else {
-              unit_calculation(u)
-            }
+            # if (nrow(u) > 1) {
+            #   browser()
+            #   apply(u, 1, unit_calculation)
+            #  calc(u)
+            # } else {
+            #   calc(u[1,])
+            #   unit_calculation(u)
+            # }
 
           })
 setMethod(f = "dCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  definition = function(u, copula) {

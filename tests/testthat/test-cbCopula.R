@@ -39,7 +39,6 @@ test_that("pCopula values are OK",{
 
 test_that("vCopula did not change",{
   expect_equal(vCopula(u,v,cop),c(0,0,0))
-  #expect_equal_to_reference(vCopula(v,w,cop))
   expect_error(vCopula(v,u,cop))
   expect_equal(vCopula(u,w,cop),rep(1,3))
 })

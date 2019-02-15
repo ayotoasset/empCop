@@ -19,14 +19,18 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     magrittr,
-    dplyr
+    dplyr,
+    Rcpp
 URL: https://lrnv.github.io/empCop/, https://github.com/lrnv/empCop
 BugReports: https://github.com/lrnv/empCop/issues
 Collate: 
     'generics.R'
     'ConvexCombCopula.R'
+    'RcppExports.R'
     'empiricalCopula.R'
     'cbCopula.R'
     'cbkmCopula.R'
     'utils-pipe.R'
     'utils.R'
+LinkingTo: 
+    Rcpp

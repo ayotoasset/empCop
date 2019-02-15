@@ -4,6 +4,7 @@
 NULL
 
 
+
 #' Copula volume on hyper-boxes
 #'
 #' #' u must be piecewise smaller than v, otherwise the function will return an error.
