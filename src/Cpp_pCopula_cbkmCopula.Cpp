@@ -6,27 +6,6 @@ using namespace Rcpp;
 
 //How do i document thoose functions ? I dont, really...
 
-// // [[Rcpp::export]] //
-// List Cpp_intersect(NumericVector x_min,
-//                    NumericVector  x_max,
-//                    NumericVector  y_min,
-//                    NumericVector  y_max) {
-// // retourne l'intersection es deux rectangles [x_min,x_max] et
-// // [y_min,y_max] sous la forme d'un rectangle [rez_min,rez_max]
-//
-//   // Create a list :
-//   NumericVector min = pmax(x_min,y_min);
-//   NumericVector max = pmin(x_max,y_max);
-//   List L = List::create(R_NilValue);
-//   // List L = List::create(Named("min") = min , _["max"] = max);
-//
-//   if (! any(min > max).is_true()) {
-//     L = List::create(Named("min") = min , _["max"] = max);
-//   }
-//   return(L);
-// }
-
-
 // Prerequisite :
 
 double prod(NumericVector vars){
@@ -66,21 +45,12 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
     cumsum_result[0] = 0.0;
     for(int i=0;i<n;i++){
 
-      // First, let's calculate the intersection of the boudaries of the 2 rectangles :
-      //intersect = Cpp_intersect(boxes.row(i),boxes.row(i)+size_box,y_min,u.row(n_obs));
-
-
       // retourne l'intersection es deux rectangles [x_min,x_max] et
       // [y_min,y_max] sous la forme d'un rectangle [rez_min,rez_max]
       min = pmax(boxes.row(i),y_min);
       max = pmin(boxes.row(i)+size_box,u.row(n_obs));
 
-
       // Add weights only if the intersection is not empty :
-      //if(intersect[0] != R_NilValue){
-      //  min = intersect["min"];
-      //  max = intersect["max"];
-
       if (! any(min > max).is_true()){
         // mesure of the known copula on it's margins, per box :
         mes_known = vCopula_wrapper(min[J],max[J]);
@@ -91,8 +61,6 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
         // return the cumulative sum :
         cumsum_result[0] = cumsum_result[0] + mes_known[0] * mes_lebesgue[0] * weights[i];
 
-        // Rprintf("mes_kwn : %f, mes_leb : %f",mes_known[0],mes_lebesgue[0]);
-        // Rprintf(", m^(d-p) %f, w : %f\n,rez : %f",pow(m,d-p),weights[i],cumsum_result[0]);
       }
     }
     Result[n_obs] = cumsum_result[0];
@@ -108,6 +76,25 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
 //   return(binary);
 // }
 
+// // [[Rcpp::export]] //
+// List Cpp_intersect(NumericVector x_min,
+//                    NumericVector  x_max,
+//                    NumericVector  y_min,
+//                    NumericVector  y_max) {
+// // retourne l'intersection es deux rectangles [x_min,x_max] et
+// // [y_min,y_max] sous la forme d'un rectangle [rez_min,rez_max]
+//
+//   // Create a list :
+//   NumericVector min = pmax(x_min,y_min);
+//   NumericVector max = pmin(x_max,y_max);
+//   List L = List::create(R_NilValue);
+//   // List L = List::create(Named("min") = min , _["max"] = max);
+//
+//   if (! any(min > max).is_true()) {
+//     L = List::create(Named("min") = min , _["max"] = max);
+//   }
+//   return(L);
+// }
 
 
 
