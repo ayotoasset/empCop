@@ -86,7 +86,7 @@
       <h1>Convex combination of checkerbords with known margins</h1>
                         <h4 class="author">Vignette Author</h4>
             
-            <h4 class="date">2019-02-14</h4>
+            <h4 class="date">2019-02-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/lrnv/empCop/blob/master/vignettes/convexcombcopula.Rmd"><code>vignettes/convexcombcopula.Rmd</code></a></small>
       <div class="hidden name"><code>convexcombcopula.Rmd</code></div>
@@ -106,19 +106,18 @@
 <a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw">archmCopula</span>(<span class="st">"gumbel"</span>,<span class="dv">3</span>,<span class="dt">dim=</span><span class="dv">2</span>),</a>
 <a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="kw">archmCopula</span>(<span class="st">"clayton"</span>,<span class="op">-</span><span class="dv">1</span>,<span class="dt">dim=</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb1-8" data-line-number="8">)</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">alpha &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">(cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ConvexCombCopula.html">ConvexCombCopula</a></span>(copulas,alpha))</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt; This is a ConvexCombCopula , with : </span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt;    dim = 2 </span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt;    number of copulas = 2 </span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt;    alpha = 0.2 0.8 </span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; sub-copulas can be accessed trhough the @copulas slot</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,cop))</a></code></pre></div>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">(cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ConvexCombCopula.html">ConvexCombCopula</a></span>(copulas))</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt; This is a ConvexCombCopula , with : </span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt;    dim = 2 </span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt;    number of copulas = 2 </span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt;    alpha = 0.5 0.5 </span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; sub-copulas can be accessed trhough the @copulas slot</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,cop))</a></code></pre></div>
 <p><img src="convexcombcopula_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">pCopula</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.5</span>,<span class="fl">0.7</span>),cop)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; [1] 0.25703</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; [1] 0.3425749</span></a></code></pre></div>
 <p>The number of copulas is not restricte. Avaliables methods are for the moment <code>rCopula</code> and <code>pCopula</code>.</p>
 <p>For exemple, given a dataset, we could optimise each copula first and them optimise weights, based on some criterion, e.g rmse.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"LifeCycleSavings"</span>)</a>
@@ -152,27 +151,27 @@
 <a class="sourceLine" id="cb4-23" data-line-number="23">copulas &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()</a>
 <a class="sourceLine" id="cb4-24" data-line-number="24">copulas[[<span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbCopula.html">cbCopula</a></span>(pseudo_dataset,<span class="dt">pseudo=</span><span class="ot">TRUE</span>,<span class="dt">m=</span><span class="dv">4</span>)</a>
 <a class="sourceLine" id="cb4-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb4-26" data-line-number="26"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(couples)){</a>
-<a class="sourceLine" id="cb4-27" data-line-number="27">  copulas[[i<span class="op">+</span><span class="dv">1</span>]] &lt;-<span class="st"> </span><span class="kw">cbkm_clayton</span>(pseudo_dataset,couples[i,])</a>
-<a class="sourceLine" id="cb4-28" data-line-number="28">}</a></code></pre></div>
+<a class="sourceLine" id="cb4-26" data-line-number="26"><span class="co"># for(i in 1:nrow(couples)){</span></a>
+<a class="sourceLine" id="cb4-27" data-line-number="27"><span class="co">#   copulas[[i+1]] &lt;- cbkm_clayton(pseudo_dataset,couples[i,])</span></a>
+<a class="sourceLine" id="cb4-28" data-line-number="28"><span class="co"># }</span></a></code></pre></div>
 <p>For exemple, we can draw a simulations from the first cbkmCopula :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw">rCopula</span>(<span class="dv">1000</span>,copulas[[<span class="dv">2</span>]]))</a></code></pre></div>
-<p><img src="convexcombcopula_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co">#pairs(rCopula(1000,copulas[[1]]))</span></a></code></pre></div>
 <p>Now that we have all thoose fits, we can optimise weights regarding a certain criterion.</p>
 <p>Here the criterion will be the RMSE on the dataset :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">rmse &lt;-<span class="st"> </span><span class="cf">function</span>(alpha,cop,data,pEmpCop){</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/MathFun">sqrt</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>((<span class="kw">pCopula</span>(<span class="dt">u=</span>data,<span class="dt">copula=</span>cop) <span class="op">-</span><span class="st"> </span>pEmpCop)<span class="op">^</span><span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">}</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">criterion &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">alpha =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span><span class="op">/</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cops),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(cops)),cops,data){</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">  pEmpCop &lt;-<span class="st"> </span><span class="kw">pCopula</span>(<span class="dt">u=</span>data,<span class="dt">copula=</span><span class="kw">empCopula</span>(data))</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ConvexCombCopula.html">ConvexCombCopula</a></span>(<span class="dt">copulas =</span> cops,<span class="dt">alpha =</span> alpha)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">  <span class="kw">rmse</span>(alpha,cop,data,pEmpCop)</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">}</a>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># rmse &lt;- function(alpha,cop,data,pEmpCop){</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#     sqrt(sum((pCopula(u=data,copula=cop) - pEmpCop)^2))</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># }</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co"># </span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co"># criterion &lt;- function(alpha = rep(1/length(cops),length(cops)),cops,data){</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#   pEmpCop &lt;- pCopula(u=data,copula=empCopula(data))</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#   cop &lt;- ConvexCombCopula(copulas = cops,alpha = alpha)</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#   rmse(alpha,cop,data,pEmpCop)</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co"># }</span></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#criterion(cops = copulas,data = pseudo_dataset)</span></a></code></pre></div>
 <p>This implmeentation is not finished because the actual implementation of the pCopula function is clearly not good enough (not fast enough) to include cbkmCopulas in this process.</p>
 <p>The solution to spee things up is to pass coputations to C++ instead of R. Will do soon.</p>
+<p>But for the moment this is not possible.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

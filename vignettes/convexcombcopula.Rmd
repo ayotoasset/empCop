@@ -33,9 +33,8 @@ copulas <- list(
   archmCopula("gumbel",3,dim=2),
   archmCopula("clayton",-1,dim=2)
 )
-alpha <- c(1,4)
 
-(cop <- ConvexCombCopula(copulas,alpha))
+(cop <- ConvexCombCopula(copulas))
 
 plot(rCopula(100,cop))
 pCopula(c(0.5,0.7),cop)
@@ -85,9 +84,9 @@ couples <- couples[couples[,1]<couples[,2],]
 copulas <- list()
 copulas[[1]] <- cbCopula(pseudo_dataset,pseudo=TRUE,m=4)
 
-for(i in 1:nrow(couples)){
-  copulas[[i+1]] <- cbkm_clayton(pseudo_dataset,couples[i,])
-}
+# for(i in 1:nrow(couples)){
+#   copulas[[i+1]] <- cbkm_clayton(pseudo_dataset,couples[i,])
+# }
 
 
 ```
@@ -96,7 +95,7 @@ for(i in 1:nrow(couples)){
 For exemple, we can draw a simulations from the first cbkmCopula : 
 
 ```{r}
-pairs(rCopula(1000,copulas[[2]]))
+#pairs(rCopula(1000,copulas[[1]]))
 ```
 
 Now that we have all thoose fits, we can optimise weights regarding a certain criterion. 
@@ -104,15 +103,15 @@ Now that we have all thoose fits, we can optimise weights regarding a certain cr
 Here the criterion will be the RMSE on the dataset : 
 
 ```{r}
-rmse <- function(alpha,cop,data,pEmpCop){
-    sqrt(sum((pCopula(u=data,copula=cop) - pEmpCop)^2))
-}
-
-criterion <- function(alpha = rep(1/length(cops),length(cops)),cops,data){
-  pEmpCop <- pCopula(u=data,copula=empCopula(data))
-  cop <- ConvexCombCopula(copulas = cops,alpha = alpha)
-  rmse(alpha,cop,data,pEmpCop)
-}
+# rmse <- function(alpha,cop,data,pEmpCop){
+#     sqrt(sum((pCopula(u=data,copula=cop) - pEmpCop)^2))
+# }
+# 
+# criterion <- function(alpha = rep(1/length(cops),length(cops)),cops,data){
+#   pEmpCop <- pCopula(u=data,copula=empCopula(data))
+#   cop <- ConvexCombCopula(copulas = cops,alpha = alpha)
+#   rmse(alpha,cop,data,pEmpCop)
+# }
 
 #criterion(cops = copulas,data = pseudo_dataset)
 ```
@@ -121,6 +120,8 @@ criterion <- function(alpha = rep(1/length(cops),length(cops)),cops,data){
 This implmeentation is not finished because the actual implementation of the pCopula function is clearly not good enough (not fast enough) to include cbkmCopulas in this process. 
 
 The solution to spee things up is to pass coputations to C++ instead of R. Will do soon.
+
+But for the moment this is not possible.
 
 
 

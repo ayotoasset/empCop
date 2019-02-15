@@ -2,25 +2,23 @@
 % Please edit documentation in R/ConvexCombCopula.R
 \name{ConvexCombCopula}
 \alias{ConvexCombCopula}
-\title{ConvexCombCopula}
+\title{ConvexCombCopula class}
 \usage{
 ConvexCombCopula(copulas, alpha = rep(1, length(copulas)))
 }
 \arguments{
 \item{copulas}{a list of copulas of same dimention}
 
-\item{alpha}{a vector of (positive) weights
-
-The convexcombcopula class is used to build convex combinations of copulas,
-with given positives weights. The rCopula and pCopula functions works for
-thoose copulas, assuming they work for the given copulas that we combined
-in a convex way.}
+\item{alpha}{a vector of (positive) weights}
 }
 \value{
 a ConvexCombCopula object
 }
 \description{
-ConvexCombCopula
+The ConvexCombcopula class is used to build convex combinations of copulas,
+with given positives weights. The rCopula and pCopula functions works for
+thoose copulas, assuming they work for the given copulas that we combined
+in a convex way.
 }
 \examples{
 copulas <- list(

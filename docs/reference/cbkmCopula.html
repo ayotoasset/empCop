@@ -135,7 +135,7 @@ This allows for high-dimensional-aware contructions.</p>
     </div>
 
     <pre class="usage"><span class='fu'>cbkmCopula</span>(<span class='no'>x</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>x</span>), <span class='kw'>pseudo</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>margins_numbers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -180,7 +180,7 @@ This allows for high-dimensional-aware contructions.</p>
                   <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>,
                   <span class='kw'>pseudo</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
                   <span class='kw'>margins_numbers</span> <span class='kw'>=</span> <span class='no'>known_margins</span>,
-                  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='no'>known_clayton</span>)</div><div class='output co'>#&gt; <span class='error'>Error in cbkmCopula(x = dataset, m = 5, pseudo = TRUE, margins_numbers = known_margins,     known_cop = known_clayton): objet 'known_clayton' introuvable</span></div><div class='input'>
+                  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='no'>known_clayton</span>)</div><div class='output co'>#&gt; <span class='error'>Error in ncol(x): objet 'dataset' introuvable</span></div><div class='input'>
 
 <span class='no'>u</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>rbind</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>4</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>0.7</span>,<span class='fl'>12</span>),<span class='kw'>nrow</span><span class='kw'>=</span><span class='fl'>3</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>))
 

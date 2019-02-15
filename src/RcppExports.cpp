@@ -5,20 +5,6 @@
 
 using namespace Rcpp;
 
-// Cpp_intersect
-List Cpp_intersect(NumericVector x_min, NumericVector x_max, NumericVector y_min, NumericVector y_max);
-RcppExport SEXP _empCop_Cpp_intersect(SEXP x_minSEXP, SEXP x_maxSEXP, SEXP y_minSEXP, SEXP y_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x_min(x_minSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type x_max(x_maxSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y_min(y_minSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y_max(y_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(Cpp_intersect(x_min, x_max, y_min, y_max));
-    return rcpp_result_gen;
-END_RCPP
-}
 // Cpp_pCopula_cbkmCopula
 NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J, IntegerVector J, NumericMatrix u, NumericMatrix boxes, double size_box, int m, NumericVector weights, Function vCopula_wrapper);
 RcppExport SEXP _empCop_Cpp_pCopula_cbkmCopula(SEXP d_moins_JSEXP, SEXP JSEXP, SEXP uSEXP, SEXP boxesSEXP, SEXP size_boxSEXP, SEXP mSEXP, SEXP weightsSEXP, SEXP vCopula_wrapperSEXP) {
@@ -39,7 +25,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_empCop_Cpp_intersect", (DL_FUNC) &_empCop_Cpp_intersect, 4},
     {"_empCop_Cpp_pCopula_cbkmCopula", (DL_FUNC) &_empCop_Cpp_pCopula_cbkmCopula, 8},
     {NULL, NULL, 0}
 };

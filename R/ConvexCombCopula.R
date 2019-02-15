@@ -26,15 +26,16 @@ NULL
                                if (length(errors) == 0)
                                  TRUE else errors
                              })
-#' ConvexCombCopula
+
+#' ConvexCombCopula class
 #'
-#' @param copulas a list of copulas of same dimention
-#' @param alpha a vector of (positive) weights
-#'
-#' The convexcombcopula class is used to build convex combinations of copulas,
+#' The ConvexCombcopula class is used to build convex combinations of copulas,
 #' with given positives weights. The rCopula and pCopula functions works for
 #' thoose copulas, assuming they work for the given copulas that we combined
 #' in a convex way.
+#'
+#' @param copulas a list of copulas of same dimention
+#' @param alpha a vector of (positive) weights
 #'
 #' @return a ConvexCombCopula object
 #' @export
@@ -78,7 +79,6 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "ConvexCombCopula
             }, copula@copulas, sapply(1:n_cop, function(x) {
               sum(x == sampled_copulas)
             }))
-
             # then rbind all of them and mix rows :
             samples <- do.call(rbind, samples)
             samples <- samples[sample(1:nrow(samples), size = nrow(samples),

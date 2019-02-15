@@ -180,11 +180,13 @@ What now if the 2 parts are clearly independant ?
 
 ```
 ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case"}
-  cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
+  cop <- cbkmCopula(x = dataset,m = 10,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton)
 
   simu <- rCopula(500,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
+
+We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) impacted less the checkerboard construction for the other 2 margins (w,x), since the two parts are (truly) independant.
 
 
 

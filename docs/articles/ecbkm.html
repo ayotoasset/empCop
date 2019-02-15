@@ -86,7 +86,7 @@
       <h1>Empirical Checkerboard Copula with known margins</h1>
                         <h4 class="author">Vignette Author</h4>
             
-            <h4 class="date">2019-02-14</h4>
+            <h4 class="date">2019-02-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/lrnv/empCop/blob/master/vignettes/ecbkm.Rmd"><code>vignettes/ecbkm.Rmd</code></a></small>
       <div class="hidden name"><code>ecbkm.Rmd</code></div>
@@ -253,7 +253,7 @@ Pairs-plot of the original data (red) and simulated data from a wrong model (bla
 Pairs-plot of the original data with independance
 </p>
 </div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">10</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="dt">known_cop =</span> wrong_clayton)</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; Doing precalculations...</span></a>
 <a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt; Done !</span></a>
 <a class="sourceLine" id="cb7-4" data-line-number="4"></a>
@@ -264,6 +264,7 @@ Pairs-plot of the original data with independance
 Pairs-plot of the original data (red) and simulated data from a wrong model (black) – Independance case
 </p>
 </div>
+<p>We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) impacted less the checkerboard construction for the other 2 margins (w,x), since the two parts are (truly) independant.</p>
 </div>
   </div>
 
