@@ -66,9 +66,9 @@ test_that("rCopula output is ok",{
   expect_equal(ncol(rCopula(10,cop)),dim(cop))
 })
 
-test_that("dCopula returns an error",{
- # expect_error(dCopula(rep(0.5,dim(cop)),cop))
-})
+# test_that("dCopula returns an error",{
+#   expect_error(dCopula(rep(0.5,dim(cop)),cop))
+# })
 
 
 
