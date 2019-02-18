@@ -45,11 +45,11 @@ r_binary_packages:
   - knitr
   - rmarkdown
   - testthat
-  - pkgdown
 
 r_packages:
-
   - copula
+  - pkgdown
+
 
 
 
