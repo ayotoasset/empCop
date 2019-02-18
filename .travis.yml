@@ -40,15 +40,15 @@ r_binary_packages:
   - git2r
   - data.table
   - dplyr
-
-r_packages:
   - purrr
   - tidyr
-  - dplyr
   - knitr
   - rmarkdown
   - testthat
   - pkgdown
+
+r_packages:
+
   - copula
 
 
