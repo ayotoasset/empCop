@@ -5,7 +5,7 @@
 \title{cbkmCopula contructor}
 \usage{
 cbkmCopula(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
-  known_cop = NULL, quiet = FALSE)
+  known_cop = NULL, quiet = FALSE, exception_type = "checkerboard")
 }
 \arguments{
 \item{x}{the data to be used}
@@ -17,6 +17,10 @@ cbkmCopula(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL,
 \item{margins_numbers}{numeric integers refering to the margins you want to assign the known_cop to}
 
 \item{known_cop}{Copula a copula object representing the known copula for the selected margins.}
+
+\item{quiet}{Should the constructor be verbose or not ?}
+
+\item{exception_type}{can be one of "checkerboard" or "indep". Condition the constrution for checkerboard margins when not points are avaliable.}
 }
 \value{
 a cbCopula object

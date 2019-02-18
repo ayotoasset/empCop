@@ -35,6 +35,8 @@ NULL
 #' @param margins_numbers numeric integers refering to the margins you want to assign the known_cop to
 #' @param known_cop Copula a copula object representing the known copula for the selected margins.
 #'
+#' @param quiet Should the constructor be verbose or not ?
+#' @param exception_type can be one of "checkerboard" or "indep". Condition the constrution for checkerboard margins when not points are avaliable.
 #'
 #' @return a cbCopula object
 #' @export
@@ -61,7 +63,7 @@ NULL
 #' u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
 #'
 #' pCopula(u,cop)
-cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL,quiet=FALSE) {
+cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL,quiet=FALSE,exception_type="checkerboard") {
   if (missing(x)) {
     stop("The argument x must be provided")
   }
@@ -96,7 +98,7 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
     box_inf <- as.matrix(box_inf)
     colnames(box_inf) <- NULL
 
-    # now calculate the empirical measure for each box :
+    # now calculate the empirical measure for each box and each projection :
 
     seuil_inf <- as.matrix(floor(x * m)/m)
 
@@ -106,7 +108,7 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
       }))
     })
 
-    # idem pour les cases J :
+    # J-projected boxes :
     nb_emp_J <- sapply(1:(m^ncol(x)), function(i) {
       sum(apply(seuil_inf, 1, function(x) {
         all(round(m * x[margins_numbers], 0) == round(m * box_inf[i,
@@ -114,13 +116,30 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
       }))
     })
 
+    #  -J-projected boxes :
+    nb_emp_notJ <- sapply(1:(m^ncol(x)), function(i) {
+      sum(apply(seuil_inf, 1, function(x) {
+        all(round(m * x[-margins_numbers], 0) == round(m * box_inf[i,
+                                                                   -margins_numbers], 0))
+      }))
+    })
+
     weights <- vector(length = length(nb_emp))
-    weights[nb_emp_J != 0] <- nb_emp[nb_emp_J != 0]/nb_emp_J[nb_emp_J !=
-                                                               0]
-    weights[nb_emp_J == 0] <- m^(length(margins_numbers) - ncol(x))
+    weights[nb_emp_J != 0] <- nb_emp[nb_emp_J != 0]/nb_emp_J[nb_emp_J != 0]
+
+    if(exception_type == "checkerboard"){
+      weights[nb_emp_J == 0] <- nb_emp_notJ[nb_emp_J == 0]/sum(nb_emp)
+    }else {
+      if(exception_type == "indep"){
+        weights[nb_emp_J == 0] <- m^(length(margins_numbers) - ncol(x))
+      } else {
+        stop("exception_type must be 'checkerboard' or 'indep'")
+      }
+    }
 
     pCopula_precalculations <- list(box_inf = box_inf, nb_emp = nb_emp,
-                                    nb_emp_J = nb_emp_J, weights = weights)
+                                    nb_emp_J = nb_emp_J, nb_emp_notJ=nb_emp_notJ,
+                                    weights = weights)
     ######## Returning the objec :
     if(!quiet){message("Done !")}
     .cbkmCopula(pseudo_data = as.data.frame(x), m = m, margins = margins_numbers,
@@ -151,6 +170,7 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"), de
             boxes <- copula@precalc$pCopula$box_inf
             n_box <- nrow(boxes)
             weights <- copula@precalc$pCopula$weights
+            nb_emp_notJ <- copula@precalc$pCopula$nb_emp_notJ
 
             # Preliminary : a `sample` function more efficient (cf ?sample,
             # exemples)
@@ -175,15 +195,18 @@ setMethod(f = "rCopula", signature = c(n = "numeric", copula = "cbkmCopula"), de
                 # We will construct an exeptional box for that :
                 # sample one of thoose with the weights, OR the [0,1]^(d-p) box if all weights are 0
                 if(sum(weights[possibles_boxes]) == 0){
-                  return(n_box+1) # we return the box number n_box+1
+                  #return(n_box+1) # we return the box number n_box+1
+                  return(resample(1:nrow(boxes),size=1,prob = nb_emp_notJ,replace = TRUE))
                 } else {
                   return(resample(possibles_boxes,size=1,prob = weights[possibles_boxes],replace = TRUE))
                 }
               })
-
               #construct the exeptional box :
-              boxes <- rbind(boxes, rep(0,d))
-              boxes_sup <- rbind(boxes+1/m, rep(1,d))
+              #boxes_sup <- rbind(boxes+1/m, rep(1,d))
+              #boxes <- rbind(boxes, rep(0,d))
+
+              boxes_sup <- boxes+1/m
+
 
               # then simulate from thoose boxes :
               inf_seuil <- boxes[simu_boxes_nb,-J]

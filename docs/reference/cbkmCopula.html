@@ -135,7 +135,7 @@ This allows for high-dimensional-aware contructions.</p>
     </div>
 
     <pre class="usage"><span class='fu'>cbkmCopula</span>(<span class='no'>x</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>x</span>), <span class='kw'>pseudo</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>margins_numbers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>known_cop</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>exception_type</span> <span class='kw'>=</span> <span class='st'>"checkerboard"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,6 +159,14 @@ This allows for high-dimensional-aware contructions.</p>
     <tr>
       <th>known_cop</th>
       <td><p>Copula a copula object representing the known copula for the selected margins.</p></td>
+    </tr>
+    <tr>
+      <th>quiet</th>
+      <td><p>Should the constructor be verbose or not ?</p></td>
+    </tr>
+    <tr>
+      <th>exception_type</th>
+      <td><p>can be one of "checkerboard" or "indep". Condition the constrution for checkerboard margins when not points are avaliable.</p></td>
     </tr>
     </table>
     

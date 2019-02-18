@@ -112,14 +112,14 @@ for exemple, let's work on some simulated datas, e.g a 4-dimension clayton copul
     family = "Clayton",
     nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4)
   )
-  dataset <- rCopula(50,true_copula) 
+  dataset <- rCopula(100,true_copula) 
   colnames(dataset) <- c("u","v","w","x")
   pairs(dataset,lower.panel=NULL)
 
 ```
 
 
-And let's suppose that the second bivariate margin is known, with a (right) clayton copula with $\tau = 0.6$ : 
+And let's suppose that the second bivariate margin is known, with a (well-estimated) clayton copula with $\tau = 0.6$ : 
 ```{r}
   known_margins <- c(2,3)
   known_clayton <- onacopulaL(
@@ -138,7 +138,7 @@ Then we can construct the ECBC with this known margin :
 We can then simulate from it : 
 
 ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from the true model (black)"}
-  simu <- rCopula(500,cop)
+  simu <- rCopula(1000,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
 
@@ -159,7 +159,7 @@ What now if the known margins is clearly missspecified ?
 ```
 
 
-The conditioning mecanisme did not do well for other margins too. 
+The conditioning mecanisme did suffer for the dependances inside the known multidimentional margin but also for dependancies involving one of the variables from thoose known margins. But the checkerboard construction for the other part of the copula was not harmed.
 
 What now if the 2 parts are clearly independant ? 
 
@@ -180,14 +180,12 @@ What now if the 2 parts are clearly independant ?
 
 ```
 ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case"}
-  cop <- cbkmCopula(x = dataset,m = 10,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton)
-
+  cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton)
   simu <- rCopula(500,cop)
   pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
 
-We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) impacted less the checkerboard construction for the other 2 margins (w,x), since the two parts are (truly) independant.
-
+We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) dit not impact at all the checkerboard construction for the 2 other margins.
 
 
 

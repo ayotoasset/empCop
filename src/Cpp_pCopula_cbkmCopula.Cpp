@@ -51,10 +51,8 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
 
       // Add weights only if the intersection is not empty :
       if (! any(min > max).is_true()){
-        // mesure of the known copula on it's margins, per box :
+        // mesure of the known copula and of lebesgue copula on their margins, per box
         mes_known = vCopula_wrapper(min[J],max[J]);
-
-        // lebegue copula measure on it's margins, per box :
         mes_lebesgue = prod(max[d_moins_J] - min[d_moins_J])*pow(m,d-p);
 
         // return the cumulative sum :
@@ -67,7 +65,6 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
   return Result;
 }
 
-// // [[Rcpp::export]]
 // StringVector Cpp_number2binary(long int number,const int noBits)
 // {
 //   StringVector binary = std::bitset<64>(number).to_string();
