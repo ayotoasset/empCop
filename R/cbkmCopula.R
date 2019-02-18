@@ -200,11 +200,9 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  de
             # transform inputs into matrices...
             # This function fasses arguments to the C implementation.
 
-
             if (ncol(u) != dim(copula)) {
               stop("the input value must be coerçable to a matrix with dim(copula) columns.")
             }
-
             Cpp_pCopula_cbkmCopula(d_moins_J = (1:dim(copula))[-copula@margins],
                                    J = copula@margins,
                                    u = u,
@@ -213,46 +211,8 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  de
                                    m = copula@m,
                                    weights = copula@precalc$pCopula$weights,
                                    vCopula_wrapper = function(x,y){
-                                     vCopula(t(x),t(y),copula@known_cop)
+                                     vCopula(x,y,copula@known_cop,p=p,sign=sign)
                                    })
-
-
-            # # Function that does the calculations for one value of u :
-            # unit_calculation <- function(u){
-            #   # Let's calculate the intersection of [0,u] with boxes :
-            #   intersections <- Cpp_intersections(boxes,1/m,u)
-            #
-            #
-            #   # Contribution of empty intersections will clearly be zero
-            #   are_empty <- sapply(intersections, function(x){is.null(x[[1]])})
-            #   intersections <- intersections[!are_empty]
-            #   inter_min <- sapply(intersections,function(x){x$min}) # d x nb_inter matrix
-            #   inter_max <- sapply(intersections,function(x){x$max}) # d x nb_inter matrix
-            #
-            #   # mesure of the known copula on it's margins, per box :
-            #   mes_known <- vCopula(t(inter_min[J,]),t(inter_max[J,]),copula@known_cop)
-            #
-            #   # lebegue copula measure on it's margins, per box :
-            #   mes_lebesgue <- apply(as.matrix(inter_max[-J,]) - as.matrix(inter_min[-J,]),2,prod)*(m^(d-p))
-            #
-            #   # final value :
-            #   sum(mes_known * mes_lebesgue * weights[!are_empty])
-            # }
-
-            # calc <- function(u){
-            #
-            # }
-
-            # Applying :
-            # if (nrow(u) > 1) {
-            #   browser()
-            #   apply(u, 1, unit_calculation)
-            #  calc(u)
-            # } else {
-            #   calc(u[1,])
-            #   unit_calculation(u)
-            # }
-
           })
 setMethod(f = "dCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  definition = function(u, copula) {
   stop("Checkerboard copula with known margins has no density")

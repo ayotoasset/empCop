@@ -12,7 +12,7 @@ number2binary = function(number, noBits) {
 # should be passe only ONE observation at a time.
 # u and v must have same length (dim of cop)
 # u must be smaller than v
-
+# the call to pCopula is done with a matrix so no overhead for calling functions.
 setMethod("vCopula", signature = c(u = "vector", v = "vector", copula = "Copula"),
     definition = function(u, v, copula) {
 
