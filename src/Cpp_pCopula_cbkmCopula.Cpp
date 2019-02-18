@@ -4,7 +4,7 @@
 #include <bitset>
 using namespace Rcpp;
 
-//How do i document thoose functions ? I dont, really...
+// DOnt forget that the NumericVector class passes by reference. Use Rcpp::clone()
 
 // Prerequisite :
 
@@ -34,19 +34,18 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
   NumericVector min;
   NumericVector max;
   NumericVector cumsum_result = 0;
-  List intersect = List::create();
   NumericVector mes_known;
   NumericVector mes_lebesgue;
-  J = J-1;
-  d_moins_J = d_moins_J -1;
+  J = clone(J)-1; // Cpp uses 0 to N-1 for vectors.
+  d_moins_J = clone(d_moins_J) -1; // Cpp uses 0 to N-1 for vectors.
   NumericVector Result (u.nrow());
 
   for(int n_obs = 0; n_obs<u.nrow();n_obs++){
     cumsum_result[0] = 0.0;
     for(int i=0;i<n;i++){
 
-      // retourne l'intersection es deux rectangles [x_min,x_max] et
-      // [y_min,y_max] sous la forme d'un rectangle [rez_min,rez_max]
+      // gives the intersection of 2 rectangles [x_min,x_max] and
+      // [y_min,y_max] through a rectangle [min,max]
       min = pmax(boxes.row(i),y_min);
       max = pmin(boxes.row(i)+size_box,u.row(n_obs));
 
