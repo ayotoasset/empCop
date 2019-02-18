@@ -82,7 +82,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix",  copula = "cbCopula"), defi
             # into matrices...
 
             if (ncol(u) != dim(copula)) {
-              stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+              stop("the input value must be coer??able to a matrix with dim(copula) columns.")
             }
 
             seuil_inf = floor(copula@pseudo_data * copula@m)/copula@m

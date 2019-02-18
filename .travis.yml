@@ -13,6 +13,46 @@ addons:
     - libxml2-dev
     - libgsl0-dev
 
+r_binary_packages:
+  - stringi
+  - magrittr
+  - curl
+  - jsonlite
+  - Rcpp
+  - RcppEigen
+  - openssl
+  - utf8
+  - gss
+  - haven
+  - minqa
+  - mvtnorm
+  - nloptr
+  - SparseM
+  - httpuv
+  - markdown
+  - sem
+  - readxl
+  - openxlsx
+  - pander
+  - lme4
+  - psych
+  - git2r
+  - data.table
+  - copula
+  - dplyr
+  - methods
+
+r_packages:
+  - purrr
+  - tidyr
+  - dplyr
+  - knitr
+  - rmarkdown
+  - testthat
+  - pkgdown
+
+
+
 after_success:
   - Rscript -e 'pkgdown::build_site()'
 

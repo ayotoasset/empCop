@@ -1,6 +1,9 @@
+#' @import methods
 #' @import copula
 #' @import magrittr
 #' @import dplyr
+#' @importFrom stats runif
+#' @importFrom utils capture.output
 NULL
 
 

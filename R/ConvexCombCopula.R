@@ -48,15 +48,14 @@ NULL
 #' alpha <- c(1,4)
 #'
 #' (cop <- ConvexCombCopula(copulas,alpha))
-#'
-#' plot(rCopula(100,cop))
-#' pCopula(c(0.5,0.7),cop)
 ConvexCombCopula = function(copulas, alpha = rep(1, length(copulas))) {
   if (missing(copulas) || (!is(copulas, "list"))) {
     stop("The argument copulas must be provided as a list of copulas")
   }
   .ConvexCombCopula(copulas = copulas, alpha = alpha/sum(alpha))
 }
+
+#' @describeIn ConvexCombCopula dimension
 setMethod(f = "dim",     signature = (x = "ConvexCombCopula"),                      definition = function(x)         {
   return(dim(x@copulas[[1]]))
 })
@@ -91,7 +90,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"
             # into matrices...  remind that pCopula and dCopula generics already
             # transform inputs into matrices...
             if (ncol(u) != dim(copula)) {
-              stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+              stop("the input value must be coer??able to a matrix with dim(copula) columns.")
             }
 #
 #             outputs <- lapply(1:length(copula@copulas), function(i) {

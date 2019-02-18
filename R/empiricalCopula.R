@@ -27,6 +27,8 @@ setClass(Class = "empiricalCopula", contains = c("VIRTUAL", "Copula"),
            if (length(errors) == 0)
              TRUE else errors
          })
+
+#' @describeIn Copula dimension
 setMethod(f = "dim", signature = (x = "empiricalCopula"), definition = function(x) {
   return(ncol(x@pseudo_data))
 })

@@ -1,6 +1,6 @@
 Package: empCop
 Type: Package
-Title: Classes and tools for some empirical or semi-parametrical models for copulas.
+Title: Classes and tools for some empirical or semi-parametrical models for copulas
 Version: 0.0.0.9000
 Author: Oskar Laverny
 Maintainer: Oskar Laverny <oskar.laverny@gmail.com>
@@ -22,7 +22,8 @@ Imports:
     copula,
     magrittr,
     dplyr,
-    Rcpp
+    Rcpp,
+    methods
 URL: https://lrnv.github.io/empCop/, https://github.com/lrnv/empCop
 BugReports: https://github.com/lrnv/empCop/issues
 Collate: 

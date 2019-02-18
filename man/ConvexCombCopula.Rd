@@ -29,6 +29,5 @@ alpha <- c(1,4)
 
 (cop <- ConvexCombCopula(copulas,alpha))
 
-plot(rCopula(100,cop))
 pCopula(c(0.5,0.7),cop)
 }

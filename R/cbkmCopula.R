@@ -77,7 +77,7 @@ cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, kn
   }
 
   if ((is.null(known_cop) && (!is.null(margins_numbers))) || (is.null(known_cop) &&
-                                                              (!is.null(margins)))) {
+                                                              (!is.null(margins_numbers)))) {
     stop("known_cop argument and margins argument must both be provided.")
   }
 
@@ -224,7 +224,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  de
             # This function fasses arguments to the C implementation.
 
             if (ncol(u) != dim(copula)) {
-              stop("the input value must be coerçable to a matrix with dim(copula) columns.")
+              stop("the input value must be coer??able to a matrix with dim(copula) columns.")
             }
             Cpp_pCopula_cbkmCopula(d_moins_J = (1:dim(copula))[-copula@margins],
                                    J = copula@margins,

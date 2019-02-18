@@ -100,57 +100,42 @@ for exemple, let's work on some simulated datas, e.g a 4-dimension clayton copul
 
 
 ```r
-  true_copula <- onacopulaL(
-    family = "Clayton",
-    nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4)
-  )
-  dataset <- rCopula(100,true_copula) 
-  colnames(dataset) <- c("u","v","w","x")
-  pairs(dataset,lower.panel=NULL)
-```
+  # true_copula <- onacopulaL(
+  #   family = "Clayton",
+  #   nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4)
+  # )
+  # dataset <- rCopula(100,true_copula) 
+  # colnames(dataset) <- c("u","v","w","x")
+  # pairs(dataset,lower.panel=NULL)
 
-![Pairs-plot of the simulated dataset](ecbkm_files/figure-html/unnamed-chunk-1-1.png)
+```
 
 
 And let's suppose that the second bivariate margin is known, with a (well-estimated) clayton copula with $\tau = 0.6$ : 
 
 ```r
-  known_margins <- c(2,3)
-  known_clayton <- onacopulaL(
-    family = "Clayton",
-    nacList = list(iTau(getAcop("Clayton"), 0.6), 1:2)
-  )
+  # known_margins <- c(2,3)
+  # known_clayton <- onacopulaL(
+  #   family = "Clayton",
+  #   nacList = list(iTau(getAcop("Clayton"), 0.6), 1:2)
+  # )
 ```
 
 Then we can construct the ECBC with this known margin : 
 
 
 ```r
-  cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = known_clayton)
-#> Doing precalculations...
-#> Done !
-  cop
-#> This is a cbkmCopula , with : 
-#>    dim = 4 
-#>    n = 100 
-#>    m = 5 
-#> The variables names are :  u v w x 
-#> The variables  2 3  have a known copula  given by :
-#> 	Nested Archimedean copula ("outer_nacopula" of dim. 2), with slot 
-#> 	'comp'   = (1, 2)  and root
-#> 	'copula' = Archimedean copula ("acopula"), family "Clayton", theta= (3)
-#> 	and *no* child copulas
+  # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = known_clayton)
+  # cop
 ```
 
 We can then simulate from it : 
 
 
 ```r
-  simu <- rCopula(1000,cop)
-  pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
+  # simu <- rCopula(1000,cop)
+  # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
-
-![Pairs-plot of the original data (red) and simulated data from the true model (black)](ecbkm_files/figure-html/unnamed-chunk-4-1.png)
 
 
 
@@ -159,19 +144,15 @@ You can see that the known-margin was respected.
 What now if the known margins is clearly missspecified ? 
 
 ```r
-  wrong_clayton <- onacopulaL(
-    family = "Clayton",
-    nacList = list(iTau(getAcop("Clayton"), 0.1), 1:2)
-  )
-  cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
-#> Doing precalculations...
-#> Done !
-
-  simu <- rCopula(500,cop)
-  pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
+  # wrong_clayton <- onacopulaL(
+  #   family = "Clayton",
+  #   nacList = list(iTau(getAcop("Clayton"), 0.1), 1:2)
+  # )
+  # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton)
+  # 
+  # simu <- rCopula(500,cop)
+  # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
-
-![Pairs-plot of the original data (red) and simulated data from a wrong model (black)](ecbkm_files/figure-html/unnamed-chunk-5-1.png)
 
 
 The conditioning mecanisme did suffer for the dependances inside the known multidimentional margin but also for dependancies involving one of the variables from thoose known margins. But the checkerboard construction for the other part of the copula was not harmed.
@@ -181,31 +162,26 @@ What now if the 2 parts are clearly independant ?
 
 ```r
 
-  true_copula1 <- onacopulaL(
-    family = "Clayton",
-    nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2)
-  )
-  true_copula2 <- onacopulaL(
-    family = "Clayton",
-    nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2)
-  )
-  
-  dataset <- cbind(rCopula(100,true_copula1),rCopula(100,true_copula2))
-  colnames(dataset) <- c("u","v","w","x")
-  pairs(dataset,lower.panel=NULL)
-```
+  # true_copula1 <- onacopulaL(
+  #   family = "Clayton",
+  #   nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2)
+  # )
+  # true_copula2 <- onacopulaL(
+  #   family = "Clayton",
+  #   nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2)
+  # )
+  # 
+  # dataset <- cbind(rCopula(100,true_copula1),rCopula(100,true_copula2))
+  # colnames(dataset) <- c("u","v","w","x")
+  # pairs(dataset,lower.panel=NULL)
 
-![Pairs-plot of the original data with independance](ecbkm_files/figure-html/unnamed-chunk-6-1.png)
+```
 
 ```r
-  cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton)
-#> Doing precalculations...
-#> Done !
-  simu <- rCopula(500,cop)
-  pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
+  # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton)
+  # simu <- rCopula(500,cop)
+  # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL)
 ```
-
-![Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case](ecbkm_files/figure-html/unnamed-chunk-7-1.png)
 
 We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) dit not impact at all the checkerboard construction for the 2 other margins.
 
