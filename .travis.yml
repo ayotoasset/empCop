@@ -40,7 +40,6 @@ r_binary_packages:
   - data.table
   - copula
   - dplyr
-  - methods
 
 r_packages:
   - purrr
