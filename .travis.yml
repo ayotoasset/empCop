@@ -14,6 +14,7 @@ addons:
     - libgsl0-dev
 
 r_binary_packages:
+  - gsl
   - stringi
   - magrittr
   - curl
@@ -38,7 +39,6 @@ r_binary_packages:
   - psych
   - git2r
   - data.table
-  - copula
   - dplyr
 
 r_packages:
@@ -49,6 +49,7 @@ r_packages:
   - rmarkdown
   - testthat
   - pkgdown
+  - copula
 
 
 
