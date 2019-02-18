@@ -1,3 +1,5 @@
+[![Travis build status](https://travis-ci.org/lrnv/empCop.svg?branch=master)](https://travis-ci.org/lrnv/empCop)
+
 # Empirical Copulas
 
 The goal of empCop is to give tools to work with Empirical checkerboard copula, empirical checkerboard copula with known margins and convex combinaisons of copulas. It uses the main classes and formal generics from the `copula` package. It aims at implmeenting a lot of empirical model to asses multivaraite dependance structures that are not already implement in the main `copula` package. 

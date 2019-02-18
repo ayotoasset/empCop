@@ -19,6 +19,7 @@ Suggests:
     pkgdown
 VignetteBuilder: knitr
 Imports: 
+    copula,
     magrittr,
     dplyr,
     Rcpp
