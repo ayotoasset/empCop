@@ -9,6 +9,7 @@ warnings_are_errors: false
 addons:
   apt:
     packages:
+    - libgsl2
     - libcurl4-openssl-dev
     - libxml2-dev
     - libgsl0-dev
