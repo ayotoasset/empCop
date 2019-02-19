@@ -3,15 +3,11 @@
 \docType{methods}
 \name{vCopula}
 \alias{vCopula}
-\alias{vCopula,vector,vector,Copula-method}
-\alias{vCopula,vector,vector,Copula}
 \alias{vCopula,matrix,matrix,Copula-method}
 \alias{vCopula,matrix,matrix,Copula}
 \title{Copula volume on hyper-boxes}
 \usage{
 vCopula(u, v, copula, ...)
-
-\S4method{vCopula}{vector,vector,Copula}(u, v, copula)
 
 \S4method{vCopula}{matrix,matrix,Copula}(u, v, copula)
 }

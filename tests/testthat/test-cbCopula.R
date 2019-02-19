@@ -14,6 +14,10 @@ test_that("zero-row or null data.frame are coerced to indepcopula", {
   expect_equal(cbCopula(as.data.frame(matrix(0,nrow=0,ncol=5))),indepCopula(5))
 })
 
+test_that("data must be provided", {
+  expect_error(cbCopula())
+})
+
 test_that("Inheritance and methods are there", {
   expect_s4_class(cop,"Copula")
 })
@@ -58,7 +62,18 @@ expect_error(dCopula(rep(0.5,dim(cop)),cop))
 })
 
 
+test_that("rCopula output is ok ofr COnvexCombCopula",{
+  expect_equivalent(rCopula(0,cop),matrix(ncol=4,nrow=0))
+  expect_is(rCopula(10,cop),"matrix")
+  expect_equal(ncol(rCopula(10,cop)),dim(cop))
+})
 
+test_that("pCopula values are between 0 and 1 with OK bounds.",{
+  expect_true(all(pCopula(matrix(seq(0.3,1,length.out = 10),nrow=2),cop) >= c(0,0)))
+  expect_true(all(pCopula(matrix(seq(0.3,1,length.out = 10),nrow=2),cop) <= c(1,1)))
+  expect_equal(pCopula(matrix(seq(0,0,length.out = 10),nrow=2),cop),c(0,0))
+  expect_error(pCopula(matrix(seq(0.3,1,length.out = 8),nrow=2),cop))
+})
 
 
 

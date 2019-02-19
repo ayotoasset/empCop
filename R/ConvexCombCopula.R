@@ -52,7 +52,16 @@ NULL
 #' (cop <- ConvexCombCopula(copulas,alpha))
 ConvexCombCopula = function(copulas, alpha = rep(1, length(copulas))) {
   if (missing(copulas) || (!is(copulas, "list"))) {
-    stop("The argument copulas must be provided as a list of copulas")
+    if(!is(copulas,"Copula")){
+      stop("The argument copulas must be provided as a list of copulas")
+    } else {
+      warning("The copulas argument you provided is a Copula. Returning this copula")
+      return(copulas)
+    }
+  }
+  if(length(copulas) == 1){
+    warning("You provided is a list of only one copula. Returning this copula")
+    return(copulas[[1]])
   }
   .ConvexCombCopula(copulas = copulas, alpha = alpha/sum(alpha))
 }
@@ -69,6 +78,12 @@ setMethod(f = "show",    signature = c(object = "ConvexCombCopula"),            
   cat("sub-copulas can be accessed trhough the @copulas slot")
 })
 setMethod(f = "rCopula", signature = c(n = "numeric", copula = "ConvexCombCopula"), definition = function(n, copula) {
+
+
+            # if n=0, return a 0xdim(copula) matrix :
+            if (n == 0) {
+              return(matrix(NA, nrow = 0, ncol = dim(copula)))
+            }
 
             # to choose wich copulas will be simulated from, sample
             # 1:length(copulas) with weights equal to alpha, with replacement OFC

@@ -230,7 +230,7 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  de
                                    m = copula@m,
                                    weights = copula@precalc$pCopula$weights,
                                    vCopula_wrapper = function(x,y){
-                                     vCopula(x,y,copula@known_cop)
+                                     vCopula(t(x),t(y),copula@known_cop)
                                    })
           })
 setMethod(f = "dCopula", signature = c(u = "matrix", copula = "cbkmCopula"),  definition = function(u, copula) {
