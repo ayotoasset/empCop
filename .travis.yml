@@ -13,6 +13,43 @@ addons:
     - libcurl4-openssl-dev
     - libxml2-dev
 
+r_binary_packages:
+  - gsl
+  - stringi
+  - magrittr
+  - curl
+  - jsonlite
+  - Rcpp
+  - RcppEigen
+  - openssl
+  - utf8
+  - gss
+  - haven
+  - minqa
+  - mvtnorm
+  - nloptr
+  - SparseM
+  - httpuv
+  - markdown
+  - sem
+  - readxl
+  - openxlsx
+  - pander
+  - lme4
+  - psych
+  - git2r
+  - data.table
+  - dplyr
+  - purrr
+  - tidyr
+  - knitr
+  - rmarkdown
+  - testthat
+
+r_packages:
+  - copula
+  - pkgdown
+
 after_success:
   - Rscript -e 'pkgdown::build_site()'
   - Rscript -e 'covr::codecov()'
