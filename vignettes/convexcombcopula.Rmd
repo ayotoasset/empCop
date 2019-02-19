@@ -1,12 +1,12 @@
 ---
 title: "Convex combination of checkerbords with known margins"
-author: "Vignette Author"
+author: "Oskar Laverny"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
     fig_caption: yes
 vignette: >
-  %\VignetteIndexEntry{Convex combination of copulas}
+  %\VignetteIndexEntry{Convex combination of checkerbords with known margins}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
