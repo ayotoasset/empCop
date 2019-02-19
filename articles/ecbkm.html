@@ -95,118 +95,181 @@
 
     
     
-<!-- The empirical checkerboard copula with known margins is a model for copula that uses priori information on a multidimentional margins to condition a checkerboard construction on the rest of the copula. This vignette describes the model in the first section, and then discuss current implementation in the second section -->
-<!-- ## ECBC with known margins -->
-<!-- ### Preliminary notations -->
-<!-- First of all, for a certain dimension of the data at hand $d$ and a certain checkerboard parameter $m$, let's consider the ensemble of multi-indexes $\mathcal{I} = \{\mathbf{i} = (i_1,..,i_d) \subset \{1,...,m \}^d\}$ which indexes the boxes :  -->
-<!-- $$B_{\mathbf{i}} = \left]\frac{\mathbf{i}-1}{m},\frac{\mathbf{i}}{m}\right]$$ -->
-<!-- partitioning the space $\mathbb{I}^d = [0,1]^d$. Denote the set of thoose boxes by $\mathcal{B}_\mathcal{I} = \left\{B_{\mathbf{i}}, \mathbf{i} \in \mathcal{I}\right\}$. Furthermore, let's choose $p$ dimensions that would be assigned to a known copula, by setting : $J \subset \{1,...,d\}, |J| = p$ and let's define proper projections for the boxes :  -->
-<!-- $$B^J_{\mathbf{i}} = \{ \mathbf{x} \in [0,1]^p, x_j \in \left]\frac{i_j-1}{m},\frac{i_j}{m}\right] \forall j \in J \}$$ -->
-<!-- $$B^{-J}_{\mathbf{i}} = \{\mathbf{x} \in [0,1]^p, x_j \in \left]\frac{i_j-1}{m},\frac{i_j}{m}\right] \forall j \notin J \}$$ -->
-<!-- such that $B_{\mathbf{i}} = B^J_{\mathbf{i}} \times B^{-J}_{\mathbf{i}}$ for all $\mathbf{i} \in \mathcal{I}$. The tensor product is here understood taking dimensions of $\mathbb{I}^d = [0,1]^d$ in the right order such that $B^J_{\mathbf{i}}$ dimensions end up in place of dimensions indexed by $J$. Think of dimensions as re-ordered such that $J = \{1,...,p\}$. -->
-<!-- Let now $\lambda$ be the dimension-unspecified lebesgue measure on any power of $\mathbb{R}$, that is :  -->
-<!-- $$\forall d \in \mathbb{N}, \forall \mathbf{x},\mathbf{y} \in \mathbb{R}^p, \lambda(\left[\mathbf{x},\mathbf{y}\right]) = \prod\limits_{p=1}^{d} (y_i - x_i)$$ -->
-<!-- Let furthermore $\mu^J$ be a copula measure of dimension $p$, corresponding to the known multivariate margin associated to marginals in $J$. Let also $\mu$ and $\hat{\mu}$ be dimensionaly-unspecific  version of the true copula measure of the sample at hand and (respectively) the classical Deheuvels empirical copula, that is :  -->
-<!-- - For $n$ i.i.d obeservation of the copula of dimension $d$, let $\forall i \in \{1,...,d\}, \, R_i^1,...,R_i^d$ be the marginal ranks for the variable $i$.  -->
-<!-- - $\forall \mathbf{x} \in \mathcal{I}^d, \text{ let } \hat{\mu}([0,x]) = \frac{1}{n} \sum\limits_{k=1}^n \mathbb{1}_{R_1^k\le x_1,...,R_d^k\le x_d}$ -->
-<!-- We are now ready to define the empirical checkerboard copula with known margins.  -->
-<!-- ### Definition, estimation and simulation procedures -->
-<!-- The empirical copula with known margins is the copula that correspond to the following simulation procedure, which is the starting point of our reflexion.  -->
-<!-- - Simulate a sample from the known sub-copula $\mu^J$, of dimension $p$, through any avaliable method (depends on the known copula model). Let $B_{\mathbf{i}}^J$ be the (projected) box containing this sample.  -->
-<!-- - Sample one box $B_{\mathbf{i}}$ among all boxes with projection $B_{\mathbf{i}}^J$ with probability weights : -->
-<!--   -  $\frac{\hat{\mu}(B_{\mathbf{i}})}{\hat{\mu}(B_{\mathbf{i}}^J)}$ if the projected box $B_{\mathbf{i}}^J$ contains one or more (empirical) data point, that is $\hat{\mu}(B_{\mathbf{i}}^J) \neq 0$ -->
-<!--    - $\frac{\lambda(B_{\mathbf{i}})}{\lambda(B_{\mathbf{i}}^J)}$ otherwise. -->
-<!-- - Simulate uniformly from $B_{\mathbf{i}}^{-J}$  -->
-<!-- This algorithm simulates first the known part of the model (dimensions in $J$), and then, conditionally, the checkerboard part, ensuring that the known copula is respected. The downside of this behavior is that the checkerboard part may have points outside standard checkerboard boxes, making this part of the copula less sparse than a true checkerboard. But is does become sparser as soon as the data fits the known margins. On the other hand, this algorithm allows for a lot of flexibility, mainly in the following points :  -->
-<!-- - The "grid" given by $\mathcal{B}_\mathcal{I}$ can be taken more arbitrarily than $m^d$ boxes of same volume, as soon as it's a partition of $\mathbb{I}^d$. -->
-<!-- - The known copula is *not* restricted at all and can be choose among all p-variates copulas.  -->
-<!-- - The estimation of the checkerboard part can be turn into a more flexible *patchwork* construction, by changing the independence copula for an other one inside the boxes. See Durante2013,Durante2015,Durante2015a -->
-<!-- We are now going to define properly the measure associated to this simulation procedure, a.k.a the empirical checkerboard copula with known margins. Let $\nu$ be this measure and let $\mathbf{U}$ be a random vector drawn from it. Then $\forall \mathbf{x} \in \mathbb{I}^d$, following the above procedure, we have :   -->
-<!-- $$ -->
-<!--    \begin{split} -->
-<!--    \nu([0,\mathbf{x}]) &= \mathbb{P}(\mathbf{U}\le \mathbf{x}) \\ -->
-<!--               &= \sum\limits_{{\mathbf{i}} \in \mathcal{I}} \mathbb{P}(\mathbf{U} \in B_{\mathbf{i}}, \mathbf{U} \le \mathbf{x}) \\ -->
-<!--               &= \sum\limits_{{\mathbf{i}} \in \mathcal{I}} \mathbb{P}(\mathbf{U}^{-J} \in B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}] | \mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) \mathbb{P}(\mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) -->
-<!--    \end{split} -->
-<!-- $$          -->
-<!-- While the unconditional term is easy to handle since it's the measure associated with the known copula, $\mathbb{P}(\mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) = \mu^J(B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}])$, the conditional term can be treated according to the algorithm : it will be $\frac{\lambda(B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}])}{\lambda(B_{\mathbf{i}}^{-J})}$ inside a box choosed with probability conditional on $\hat{\mu}(B_{\mathbf{i}}^J) \neq 0$. We finaly get the following definition : -->
-<!-- **The empirical checkerboard copula with parameter $m$ and with set of known margins $J$ following the measure $\mu^J$ is the copula corresponding to the measure $\nu$ given by : ** -->
-<!-- $$ -->
-<!-- \nu([0,x]) = \sum\limits_{{\mathbf{i}} \in \mathcal{I}} \mu^J(B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) \frac{\lambda(B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}])}{\lambda(B_{\mathbf{i}}^{-J})} \left[ \frac{\hat{\mu}(B_{\mathbf{i}})}{\hat{\mu}(B_{\mathbf{i}}^J)} \mathbb{1}_{\hat{\mu}(B_{\mathbf{i}}^J) \neq 0} + \frac{\lambda(B_{\mathbf{i}})}{\lambda(B_{\mathbf{i}}^J)} \mathbb{1}_{\hat{\mu}(B_{\mathbf{i}}^J) = 0}   \right] -->
-<!-- $$ -->
-<!-- The next section will discuss the current implementation of this copula; -->
-<!-- ## Current implementation  -->
-<!-- The package implemnts the ECBC with known margins through the `cbkmCopula` class. The constructor of the class takes several arguments :  -->
-<!-- - `x`, representing the pseudo_data. -->
-<!-- - `m=nrow(x)`, repesenting the checkerboard parameter -->
-<!-- - `pseudo=FALSE`, representing wether or not the pseudo_data is already given in a pseudo_observation form. -->
-<!-- - `margins_numbers=NULL`, representing the margins index that are associated to the known copula, formerly noted $J$ -->
-<!-- - `known_cop=NULL`, representing the known copula to be applied to thoose margins : a copula object of right imension.  -->
-<!-- for exemple, let's work on some simulated datas, e.g a 4-dimension clayton copula simulated via the `copula` package. -->
-<!-- ```{r,fig.cap="Pairs-plot of the simulated dataset"} -->
-<!--   # true_copula <- onacopulaL( -->
-<!--   #   family = "Clayton", -->
-<!--   #   nacList = list(iTau(getAcop("Clayton"), 0.6), 1:4) -->
-<!--   # ) -->
-<!--   # dataset <- rCopula(100,true_copula)  -->
-<!--   # colnames(dataset) <- c("u","v","w","x") -->
-<!--   # pairs(dataset,lower.panel=NULL) -->
-<!-- ``` -->
-<!-- And let's suppose that the second bivariate margin is known, with a (well-estimated) clayton copula with $\tau = 0.6$ :  -->
-<!-- ```{r} -->
-<!--   # known_margins <- c(2,3) -->
-<!--   # known_clayton <- onacopulaL( -->
-<!--   #   family = "Clayton", -->
-<!--   #   nacList = list(iTau(getAcop("Clayton"), 0.6), 1:2) -->
-<!--   # ) -->
-<!-- ``` -->
-<!-- Then we can construct the ECBC with this known margin :  -->
-<!-- ```{r} -->
-<!--   # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = known_clayton) -->
-<!--   # cop -->
-<!-- ``` -->
-<!-- We can then simulate from it :  -->
-<!-- ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from the true model (black)"} -->
-<!--   # simu <- rCopula(1000,cop) -->
-<!--   # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL) -->
-<!-- ``` -->
-<!-- You can see that the known-margin was respected.  -->
-<!-- What now if the known margins is clearly missspecified ?  -->
-<!-- ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black)"} -->
-<!--   # wrong_clayton <- onacopulaL( -->
-<!--   #   family = "Clayton", -->
-<!--   #   nacList = list(iTau(getAcop("Clayton"), 0.1), 1:2) -->
-<!--   # ) -->
-<!--   # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = known_margins,known_cop = wrong_clayton) -->
-<!--   #  -->
-<!--   # simu <- rCopula(500,cop) -->
-<!--   # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL) -->
-<!-- ``` -->
-<!-- The conditioning mecanisme did suffer for the dependances inside the known multidimentional margin but also for dependancies involving one of the variables from thoose known margins. But the checkerboard construction for the other part of the copula was not harmed. -->
-<!-- What now if the 2 parts are clearly independant ?  -->
-<!-- ```{r, fig.cap="Pairs-plot of the original data with independance"} -->
-<!--   # true_copula1 <- onacopulaL( -->
-<!--   #   family = "Clayton", -->
-<!--   #   nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2) -->
-<!--   # ) -->
-<!--   # true_copula2 <- onacopulaL( -->
-<!--   #   family = "Clayton", -->
-<!--   #   nacList = list(iTau(getAcop("Clayton"), 0.8), 1:2) -->
-<!--   # ) -->
-<!--   #  -->
-<!--   # dataset <- cbind(rCopula(100,true_copula1),rCopula(100,true_copula2)) -->
-<!--   # colnames(dataset) <- c("u","v","w","x") -->
-<!--   # pairs(dataset,lower.panel=NULL) -->
-<!-- ``` -->
-<!-- ```{r, fig.cap="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case"} -->
-<!--   # cop <- cbkmCopula(x = dataset,m = 5,pseudo = TRUE,margins_numbers = c(1,2),known_cop = wrong_clayton) -->
-<!--   # simu <- rCopula(500,cop) -->
-<!--   # pairs(rbind(simu,dataset),col=c(rep("black",nrow(simu)),rep("red",nrow(dataset))),gap=0,lower.panel = NULL) -->
-<!-- ``` -->
-<!-- We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) dit not impact at all the checkerboard construction for the 2 other margins. -->
+<p>The empirical checkerboard copula with known margins is a model for copula that uses priori information on a multidimentional margins to condition a checkerboard construction on the rest of the copula. This vignette describes the model in the first section, and then discuss current implementation in the second section</p>
+<div id="ecbc-with-known-margins" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ecbc-with-known-margins" class="anchor"></a>ECBC with known margins</h2>
+<div id="preliminary-notations" class="section level3">
+<h3 class="hasAnchor">
+<a href="#preliminary-notations" class="anchor"></a>Preliminary notations</h3>
+<p>First of all, for a certain dimension of the data at hand <span class="math inline">\(d\)</span> and a certain checkerboard parameter <span class="math inline">\(m\)</span>, let’s consider the ensemble of multi-indexes <span class="math inline">\(\mathcal{I} = \{\mathbf{i} = (i_1,..,i_d) \subset \{1,...,m \}^d\}\)</span> which indexes the boxes :</p>
+<p><span class="math display">\[B_{\mathbf{i}} = \left]\frac{\mathbf{i}-1}{m},\frac{\mathbf{i}}{m}\right]\]</span></p>
+<p>partitioning the space <span class="math inline">\(\mathbb{I}^d = [0,1]^d\)</span>. Denote the set of thoose boxes by <span class="math inline">\(\mathcal{B}_\mathcal{I} = \left\{B_{\mathbf{i}}, \mathbf{i} \in \mathcal{I}\right\}\)</span>. Furthermore, let’s choose <span class="math inline">\(p\)</span> dimensions that would be assigned to a known copula, by setting : <span class="math inline">\(J \subset \{1,...,d\}, |J| = p\)</span> and let’s define proper projections for the boxes :</p>
+<p><span class="math display">\[B^J_{\mathbf{i}} = \{ \mathbf{x} \in [0,1]^p, x_j \in \left]\frac{i_j-1}{m},\frac{i_j}{m}\right] \forall j \in J \}\]</span></p>
+<p><span class="math display">\[B^{-J}_{\mathbf{i}} = \{\mathbf{x} \in [0,1]^p, x_j \in \left]\frac{i_j-1}{m},\frac{i_j}{m}\right] \forall j \notin J \}\]</span></p>
+<p>such that <span class="math inline">\(B_{\mathbf{i}} = B^J_{\mathbf{i}} \times B^{-J}_{\mathbf{i}}\)</span> for all <span class="math inline">\(\mathbf{i} \in \mathcal{I}\)</span>. The tensor product is here understood taking dimensions of <span class="math inline">\(\mathbb{I}^d = [0,1]^d\)</span> in the right order such that <span class="math inline">\(B^J_{\mathbf{i}}\)</span> dimensions end up in place of dimensions indexed by <span class="math inline">\(J\)</span>. Think of dimensions as re-ordered such that <span class="math inline">\(J = \{1,...,p\}\)</span>.</p>
+<p>Let now <span class="math inline">\(\lambda\)</span> be the dimension-unspecified lebesgue measure on any power of <span class="math inline">\(\mathbb{R}\)</span>, that is :</p>
+<p><span class="math display">\[\forall d \in \mathbb{N}, \forall \mathbf{x},\mathbf{y} \in \mathbb{R}^p, \lambda(\left[\mathbf{x},\mathbf{y}\right]) = \prod\limits_{p=1}^{d} (y_i - x_i)\]</span></p>
+<p>Let furthermore <span class="math inline">\(\mu^J\)</span> be a copula measure of dimension <span class="math inline">\(p\)</span>, corresponding to the known multivariate margin associated to marginals in <span class="math inline">\(J\)</span>. Let also <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\hat{\mu}\)</span> be dimensionaly-unspecific version of the true copula measure of the sample at hand and (respectively) the classical Deheuvels empirical copula, that is :</p>
+<ul>
+<li>For <span class="math inline">\(n\)</span> i.i.d obeservation of the copula of dimension <span class="math inline">\(d\)</span>, let <span class="math inline">\(\forall i \in \{1,...,d\}, \, R_i^1,...,R_i^d\)</span> be the marginal ranks for the variable <span class="math inline">\(i\)</span>.</li>
+<li><span class="math inline">\(\forall \mathbf{x} \in \mathcal{I}^d, \text{ let } \hat{\mu}([0,x]) = \frac{1}{n} \sum\limits_{k=1}^n \mathbb{1}_{R_1^k\le x_1,...,R_d^k\le x_d}\)</span></li>
+</ul>
+<p>We are now ready to define the empirical checkerboard copula with known margins.</p>
+</div>
+<div id="definition-estimation-and-simulation-procedures" class="section level3">
+<h3 class="hasAnchor">
+<a href="#definition-estimation-and-simulation-procedures" class="anchor"></a>Definition, estimation and simulation procedures</h3>
+<p>The empirical copula with known margins is the copula that correspond to the following simulation procedure, which is the starting point of our reflexion.</p>
+<ul>
+<li>Simulate a sample from the known sub-copula <span class="math inline">\(\mu^J\)</span>, of dimension <span class="math inline">\(p\)</span>, through any avaliable method (depends on the known copula model). Let <span class="math inline">\(B_{\mathbf{i}}^J\)</span> be the (projected) box containing this sample.</li>
+<li>Sample one box <span class="math inline">\(B_{\mathbf{i}}\)</span> among all boxes with projection <span class="math inline">\(B_{\mathbf{i}}^J\)</span> with probability weights :
+<ul>
+<li>
+<span class="math inline">\(\frac{\hat{\mu}(B_{\mathbf{i}})}{\hat{\mu}(B_{\mathbf{i}}^J)}\)</span> if the projected box <span class="math inline">\(B_{\mathbf{i}}^J\)</span> contains one or more (empirical) data point, that is <span class="math inline">\(\hat{\mu}(B_{\mathbf{i}}^J) \neq 0\)</span>
+</li>
+<li>
+<span class="math inline">\(\frac{\lambda(B_{\mathbf{i}})}{\lambda(B_{\mathbf{i}}^J)}\)</span> otherwise.</li>
+</ul>
+</li>
+<li>Simulate uniformly from <span class="math inline">\(B_{\mathbf{i}}^{-J}\)</span>
+</li>
+</ul>
+<p>This algorithm simulates first the known part of the model (dimensions in <span class="math inline">\(J\)</span>), and then, conditionally, the checkerboard part, ensuring that the known copula is respected. The downside of this behavior is that the checkerboard part may have points outside standard checkerboard boxes, making this part of the copula less sparse than a true checkerboard. But is does become sparser as soon as the data fits the known margins. On the other hand, this algorithm allows for a lot of flexibility, mainly in the following points :</p>
+<ul>
+<li>The “grid” given by <span class="math inline">\(\mathcal{B}_\mathcal{I}\)</span> can be taken more arbitrarily than <span class="math inline">\(m^d\)</span> boxes of same volume, as soon as it’s a partition of <span class="math inline">\(\mathbb{I}^d\)</span>.</li>
+<li>The known copula is <em>not</em> restricted at all and can be choose among all p-variates copulas.</li>
+<li>The estimation of the checkerboard part can be turn into a more flexible <em>patchwork</em> construction, by changing the independence copula for an other one inside the boxes. See Durante2013,Durante2015,Durante2015a</li>
+</ul>
+<p>We are now going to define properly the measure associated to this simulation procedure, a.k.a the empirical checkerboard copula with known margins. Let <span class="math inline">\(\nu\)</span> be this measure and let <span class="math inline">\(\mathbf{U}\)</span> be a random vector drawn from it. Then <span class="math inline">\(\forall \mathbf{x} \in \mathbb{I}^d\)</span>, following the above procedure, we have :</p>
+<p><span class="math display">\[\nu([0,\mathbf{x}]) = \sum\limits_{{\mathbf{i}} \in \mathcal{I}} \mathbb{P}(\mathbf{U}^{-J} \in B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}] | \mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) \mathbb{P}(\mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}])\]</span></p>
+<p>While the unconditional term is easy to handle since it’s the measure associated with the known copula, <span class="math inline">\(\mathbb{P}(\mathbf{U}^{J} \in B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) = \mu^J(B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}])\)</span>, the conditional term can be treated according to the algorithm : it will be <span class="math inline">\(\frac{\lambda(B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}])}{\lambda(B_{\mathbf{i}}^{-J})}\)</span> inside a box choosed with probability conditional on <span class="math inline">\(\hat{\mu}(B_{\mathbf{i}}^J) \neq 0\)</span>. We finaly get the following definition :</p>
+<p><strong>The empirical checkerboard copula with parameter <span class="math inline">\(m\)</span> and with set of known margins <span class="math inline">\(J\)</span> following the measure <span class="math inline">\(\mu^J\)</span> is the copula corresponding to the measure <span class="math inline">\(\nu\)</span> given by : </strong></p>
+<p><span class="math display">\[
+\nu([0,x]) = \sum\limits_{{\mathbf{i}} \in \mathcal{I}} \mu^J(B_{\mathbf{i}}^{J} \cap [0,\mathbf{x}^{J}]) \frac{\lambda(B_{\mathbf{i}}^{-J} \cap [0,\mathbf{x}^{-J}])}{\lambda(B_{\mathbf{i}}^{-J})} \left[ \frac{\hat{\mu}(B_{\mathbf{i}})}{\hat{\mu}(B_{\mathbf{i}}^J)} \mathbb{1}_{\hat{\mu}(B_{\mathbf{i}}^J) \neq 0} + \frac{\lambda(B_{\mathbf{i}})}{\lambda(B_{\mathbf{i}}^J)} \mathbb{1}_{\hat{\mu}(B_{\mathbf{i}}^J) = 0}   \right]
+\]</span></p>
+<p>The next section will discuss the current implementation of this copula;</p>
+</div>
+</div>
+<div id="current-implementation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#current-implementation" class="anchor"></a>Current implementation</h2>
+<p>The package implemnts the ECBC with known margins through the <code>cbkmCopula</code> class. The constructor of the class takes several arguments :</p>
+<ul>
+<li>
+<code>x</code>, representing the pseudo_data.</li>
+<li>
+<code>m=nrow(x)</code>, repesenting the checkerboard parameter</li>
+<li>
+<code>pseudo=FALSE</code>, representing wether or not the pseudo_data is already given in a pseudo_observation form.</li>
+<li>
+<code>margins_numbers=NULL</code>, representing the margins index that are associated to the known copula, formerly noted <span class="math inline">\(J\)</span>
+</li>
+<li>
+<code>known_cop=NULL</code>, representing the known copula to be applied to thoose margins : a copula object of right imension.</li>
+</ul>
+<p>for exemple, let’s work on some simulated datas, e.g a 4-dimension clayton copula simulated via the <code>copula</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">  true_copula &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.6</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  )</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  dataset &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">100</span>,true_copula)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(dataset) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"u"</span>,<span class="st">"v"</span>,<span class="st">"w"</span>,<span class="st">"x"</span>)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(dataset,<span class="dt">lower.panel=</span><span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-1-1.png" alt="Pairs-plot of the simulated dataset" width="672"><p class="caption">
+Pairs-plot of the simulated dataset
+</p>
+</div>
+<p>And let’s suppose that the second bivariate margin is known, with a (well-estimated) clayton copula with <span class="math inline">\(\tau = 0.6\)</span> :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">  known_margins &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  known_clayton &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.6</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  )</a></code></pre></div>
+<p>Then we can construct the ECBC with this known margin :</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> known_clayton)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  cop</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt; This is a cbkmCopula , with : </span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt;    dim = 4 </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt;    n = 100 </span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co">#&gt;    m = 5 </span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt; The variables names are :  u v w x </span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="co">#&gt; The variables  2 3  have a known copula  given by :</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt;  Nested Archimedean copula ("outer_nacopula" of dim. 2), with slot </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;  'comp'   = (1, 2)  and root</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;  'copula' = Archimedean copula ("acopula"), family "Clayton", theta= (3)</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;  and *no* child copulas</span></a></code></pre></div>
+<p>We can then simulate from it :</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">1000</span>,cop)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-4-1.png" alt="Pairs-plot of the original data (red) and simulated data from the true model (black)" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from the true model (black)
+</p>
+</div>
+<p>You can see that the known-margin was respected.</p>
+<p>What now if the known margins is clearly missspecified ?</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">  wrong_clayton &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.1</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  )</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> known_margins,<span class="dt">known_cop =</span> wrong_clayton)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">500</span>,cop)</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-5-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black)" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from a wrong model (black)
+</p>
+</div>
+<p>The conditioning mecanisme did suffer for the dependances inside the known multidimentional margin but also for dependancies involving one of the variables from thoose known margins. But the checkerboard construction for the other part of the copula was not harmed.</p>
+<p>What now if the 2 parts are clearly independant ?</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  true_copula1 &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.8</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">  )</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">  true_copula2 &lt;-<span class="st"> </span><span class="kw">onacopulaL</span>(</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">    <span class="dt">family =</span> <span class="st">"Clayton"</span>,</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="dt">nacList =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw">iTau</span>(<span class="kw">getAcop</span>(<span class="st">"Clayton"</span>), <span class="fl">0.8</span>), <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">  )</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">  dataset &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(<span class="kw">rCopula</span>(<span class="dv">100</span>,true_copula1),<span class="kw">rCopula</span>(<span class="dv">100</span>,true_copula2))</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(dataset) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"u"</span>,<span class="st">"v"</span>,<span class="st">"w"</span>,<span class="st">"x"</span>)</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(dataset,<span class="dt">lower.panel=</span><span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-6-1.png" alt="Pairs-plot of the original data with independance" width="672"><p class="caption">
+Pairs-plot of the original data with independance
+</p>
+</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">  cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbkmCopula.html">cbkmCopula</a></span>(<span class="dt">x =</span> dataset,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>,<span class="dt">margins_numbers =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="dt">known_cop =</span> wrong_clayton)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; Doing precalculations...</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt; Done !</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dv">500</span>,cop)</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,dataset),<span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dataset))),<span class="dt">gap=</span><span class="dv">0</span>,<span class="dt">lower.panel =</span> <span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecbkm_files/figure-html/unnamed-chunk-7-1.png" alt="Pairs-plot of the original data (red) and simulated data from a wrong model (black) -- Independance case" width="672"><p class="caption">
+Pairs-plot of the original data (red) and simulated data from a wrong model (black) – Independance case
+</p>
+</div>
+<p>We can see that the wrong specification of the clayton copula for the 2 firsts margins (u,v) dit not impact at all the checkerboard construction for the 2 other margins.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#ecbc-with-known-margins">ECBC with known margins</a></li>
+      <li><a href="#current-implementation">Current implementation</a></li>
+      </ul>
+</div>
       </div>
 
 </div>
