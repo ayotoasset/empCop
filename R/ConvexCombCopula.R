@@ -36,6 +36,8 @@ NULL
 #'
 #' @param copulas a list of copulas of same dimention
 #' @param alpha a vector of (positive) weights
+#' @name ConvexCombCopula-class
+#' @title Convex Combination of copulas.
 #'
 #' @return a ConvexCombCopula object
 #' @export
@@ -56,6 +58,7 @@ ConvexCombCopula = function(copulas, alpha = rep(1, length(copulas))) {
 }
 
 #' @describeIn ConvexCombCopula dimension
+#' @param x ConvexCombCopula object
 setMethod(f = "dim",     signature = (x = "ConvexCombCopula"),                      definition = function(x)         {
   return(dim(x@copulas[[1]]))
 })

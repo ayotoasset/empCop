@@ -10,7 +10,7 @@ NULL
 
 #' Copula volume on hyper-boxes
 #'
-#' #' u must be piecewise smaller than v, otherwise the function will return an error.
+#' u must be piecewise smaller than v, otherwise the function will return an error.
 #'
 #' A method is currently implemented for the main virtual class 'Copula', but it assumes
 #' that a pCopula method is avaliable for the given copula.
@@ -27,7 +27,9 @@ NULL
 #' @param ... other parameter to be passed to methods for this generic.
 #'
 #' @return the measure of the copula
-#' @export
+#' @exportMethod vCopula
+#' @name vCopula
+#' @rdname vCopula-methods
 #'
 #' @examples
 #' # For a simple one-dimentional input :

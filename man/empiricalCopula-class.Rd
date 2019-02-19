@@ -3,10 +3,22 @@
 \docType{class}
 \name{empiricalCopula-class}
 \alias{empiricalCopula-class}
+\alias{dim,empiricalCopula-method}
 \title{Empirical Copula class (virtual mother class)}
+\usage{
+\S4method{dim}{empiricalCopula}(x)
+}
+\arguments{
+\item{x}{ConvexCombCopula object}
+}
 \description{
 Empirical Copula class (virtual mother class)
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{dim}: dimension
+}}
+
 \section{Slots}{
 
 \describe{

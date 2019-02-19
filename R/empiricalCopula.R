@@ -28,7 +28,8 @@ setClass(Class = "empiricalCopula", contains = c("VIRTUAL", "Copula"),
              TRUE else errors
          })
 
-#' @describeIn Copula dimension
+#' @describeIn empiricalCopula dimension
+#' @param x ConvexCombCopula object
 setMethod(f = "dim", signature = (x = "empiricalCopula"), definition = function(x) {
   return(ncol(x@pseudo_data))
 })

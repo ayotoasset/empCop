@@ -59,11 +59,6 @@ NULL
 #'                   pseudo = TRUE,
 #'                   margins_numbers = known_margins,
 #'                   known_cop = known_clayton)
-#'
-#'
-#' u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
-#'
-#' pCopula(u,cop)
 cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL,quiet=FALSE,exception_type="checkerboard") {
   if (missing(x)) {
     stop("The argument x must be provided")

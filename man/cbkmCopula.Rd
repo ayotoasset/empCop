@@ -32,8 +32,9 @@ a conditional pattern where the checkerboar part is conditional on the known par
 This allows for high-dimensional-aware contructions.
 }
 \examples{
-true_copula <- onacopulaL(family = 'Clayton',
-nacList = list(iTau(getAcop('Clayton'), 0.6), 1:4))
+library(copula)
+true_copula <- copula::onacopulaL(family = 'Clayton',
+nacList = list(copula::iTau(copula::getAcop('Clayton'), 0.6), 1:4))
 
 dataset <- rCopula(50,true_copula)
 
@@ -48,9 +49,4 @@ cop <- cbkmCopula(x = dataset,
                   pseudo = TRUE,
                   margins_numbers = known_margins,
                   known_cop = known_clayton)
-
-
-u=rbind(rep(0,4),matrix(rep(0.7,12),nrow=3),rep(1,4))
-
-pCopula(u,cop)
 }
