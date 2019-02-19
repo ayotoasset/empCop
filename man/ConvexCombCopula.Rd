@@ -28,6 +28,4 @@ copulas <- list(
 alpha <- c(1,4)
 
 (cop <- ConvexCombCopula(copulas,alpha))
-
-pCopula(c(0.5,0.7),cop)
 }

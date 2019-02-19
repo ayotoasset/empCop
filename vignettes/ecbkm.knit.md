@@ -1,7 +1,7 @@
 ---
 title: "Empirical Checkerboard Copula with known margins"
 author: "Vignette Author"
-date: "2019-02-18"
+date: "2019-02-19"
 output:
   rmarkdown::html_vignette:
     fig_caption: yes
