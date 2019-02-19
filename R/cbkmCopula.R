@@ -43,8 +43,8 @@ NULL
 #'
 #' @examples
 #' library(copula)
-#' true_copula <- onacopulaL(family = 'Clayton',
-#' nacList = list(iTau(getAcop('Clayton'), 0.6), 1:4))
+#' true_copula <- copula::onacopulaL(family = 'Clayton',
+#' nacList = list(copula::iTau(copula::getAcop('Clayton'), 0.6), 1:4))
 #'
 #' dataset <- rCopula(50,true_copula)
 #'
