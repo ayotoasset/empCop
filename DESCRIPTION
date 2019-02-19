@@ -17,7 +17,8 @@ Suggests:
     rmarkdown,
     testthat,
     pkgdown,
-    scatterplot3d
+    scatterplot3d,
+    covr
 VignetteBuilder: knitr
 Imports: 
     copula,
