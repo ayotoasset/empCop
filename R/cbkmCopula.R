@@ -42,6 +42,7 @@ NULL
 #' @export
 #'
 #' @examples
+#' library(copula)
 #' true_copula <- onacopulaL(family = 'Clayton',
 #' nacList = list(iTau(getAcop('Clayton'), 0.6), 1:4))
 #'
