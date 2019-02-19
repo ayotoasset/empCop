@@ -1,4 +1,5 @@
 [![Travis build status](https://travis-ci.org/lrnv/empCop.svg?branch=master)](https://travis-ci.org/lrnv/empCop)
+[![Coverage status](https://codecov.io/gh/lrnv/empCop/branch/master/graph/badge.svg)](https://codecov.io/github/lrnv/empCop?branch=master)
 
 # Empirical Copulas
 
