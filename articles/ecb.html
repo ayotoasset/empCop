@@ -86,7 +86,7 @@
       <h1>Empirical Checkerboard Copula</h1>
                         <h4 class="author">Oskar Laverny</h4>
             
-            <h4 class="date">2019-02-19</h4>
+            <h4 class="date">2019-02-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/lrnv/empCop/blob/master/vignettes/ecb.Rmd"><code>vignettes/ecb.Rmd</code></a></small>
       <div class="hidden name"><code>ecb.Rmd</code></div>
@@ -95,7 +95,7 @@
 
     
     
-<p>The empirical checkerboard copula is a model for copula defined by Cuberos (citation?). In this first section fo this vignette, we will set notations and define the model. The second section will discuss and demonstrate the implementation made in the package.</p>
+<p>The empirical checkerboard copula is a model for copula defined by Cuberos (citation?). In the first section of this vignette, we will set notations and define the model. The second section will discuss and demonstrate the implementation made in the package.</p>
 <div id="definition-of-the-empirical-checkerboard-copula" class="section level2">
 <h2 class="hasAnchor">
 <a href="#definition-of-the-empirical-checkerboard-copula" class="anchor"></a>Definition of the empirical checkerboard copula</h2>
@@ -117,12 +117,12 @@
 <p>This package gives a comprehensive implementation of the empirical conterpart of this copula, wich has exactly the same expression exept that <span class="math inline">\(\mu\)</span>, the true copula of the sample, is replace by it’s deheuvel approximation <span class="math inline">\(\hat{\mu}\)</span>, that is :</p>
 <p><span class="math display">\[\forall x \in [0,1]^d, \hat{C}(x) = \sum\limits_{\mathbf{i}\in\mathcal{I}} {m^d \hat{\mu}(B_{\mathbf{i}}) \lambda([0,\mathbf{x}]\cup B_{\mathbf{i}})}\]</span></p>
 <p>A known result is that this is a copula if and only if <span class="math inline">\(m\)</span> divides <span class="math inline">\(n\)</span> (see cuberos). In this case, some theoretical limiting results are avaliables.</p>
-<p>The next section will discuss how one could use this copula in R.</p>
+<p>The next section will discuss how one could use this copula in R, leveraging the <code>empCop</code> package.</p>
 </div>
 <div id="implementation-of-this-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#implementation-of-this-model" class="anchor"></a>Implementation of this model</h2>
-<p>In our package, this empirical checkerboard copula, here called ECBC, is implemented in the <code>cbCopula</code> class.</p>
+<p>In our package, this empirical checkerboard copula is implemented in the <code>cbCopula</code> class.</p>
 <p>To create one of theese copula, you will need a dataset to start with. For the matter of this vignette, we will use the <code>LifeCycleSavings</code> dataset, which has following pairs dependencies plot :</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"LifeCycleSavings"</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">pseudo_data &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/apply">apply</a></span>(LifeCycleSavings,<span class="dv">2</span>,rank,<span class="dt">ties.method=</span><span class="st">"max"</span>)<span class="op">/</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(LifeCycleSavings)<span class="op">+</span><span class="dv">1</span>))</a>
@@ -133,14 +133,12 @@ Pairs-plot of original peusdo-observation from the data
 </p>
 </div>
 <p>You can see that the variable 2 to 4 have noticeable dependencies structures, while the first and last one are harder to diagnose on this graphics. The dataset having <span class="math inline">\(n=50\)</span> rows, we will pick a value of <span class="math inline">\(m\)</span> dividing <span class="math inline">\(50\)</span>, e.g <span class="math inline">\(m=5\)</span>, and use the function <code>cbCopula</code> to build our copula model. Since we are already providing the pseudo observations, we will set <code>pseudo = TRUE</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">m=<span class="dv">5</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbCopula.html">cbCopula</a></span>(<span class="dt">x =</span> pseudo_data,<span class="dt">m =</span> m,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">cop</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; This is a cbCopula , with : </span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;    dim = 5 </span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt;    n = 50 </span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;    m = 5 </span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; The variables names are :  sr pop15 pop75 dpi ddpi</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">(cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cbCopula.html">cbCopula</a></span>(<span class="dt">x =</span> pseudo_data,<span class="dt">m =</span> <span class="dv">5</span>,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">#&gt; This is a cbCopula , with : </span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;    dim = 5 </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;    n = 50 </span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;    m = 5 </span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; The variables names are :  sr pop15 pop75 dpi ddpi</span></a></code></pre></div>
 <p>For the moment, only some methods exist for this copula. We can calculate it’s values via the <code>pCopula</code> method, get it’s dimention via the <code>dim</code> method, or simulate from it via the <code>rCopula</code> method. Here is an exemple of simulation from this model :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dt">n =</span> <span class="dv">1000</span>,<span class="dt">copula =</span> cop)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,pseudo_data),</a>
@@ -164,6 +162,29 @@ Plot of the copula itself
 </p>
 </div>
 </div>
+<div id="about-the-value-of-m" class="section level2">
+<h2 class="hasAnchor">
+<a href="#about-the-value-of-m" class="anchor"></a>About the value of <span class="math inline">\(m\)</span>
+</h2>
+<p>The value of the checkerboar parameter <span class="math inline">\(m\)</span> condition heavily the copula itself. using the ConvexCombCopula class, we could use this parameter to construct a more complicated model, consisting of a linear mean of all possible checkerboard copulas. This could be done as follows :</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">n &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(pseudo_data)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">possibles_m &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(<span class="dv">1</span><span class="op">:</span>n,<span class="cf">function</span>(x){(n<span class="op">%%</span>x) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>}))</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">copulas &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(possibles_m,<span class="cf">function</span>(m){<span class="kw"><a href="../reference/cbCopula.html">cbCopula</a></span>(<span class="dt">x =</span> pseudo_data,<span class="dt">m =</span> m,<span class="dt">pseudo =</span> <span class="ot">TRUE</span>)})</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">mean_cop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/ConvexCombCopula-class.html">ConvexCombCopula</a></span>(copulas)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">simu &lt;-<span class="st"> </span><span class="kw">rCopula</span>(<span class="dt">n =</span> <span class="dv">1000</span>,<span class="dt">copula =</span> mean_cop)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(simu,pseudo_data),</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">      <span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"black"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(simu)),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"red"</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(pseudo_data))),</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">      <span class="dt">gap=</span><span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">      <span class="dt">lower.panel=</span><span class="ot">NULL</span>)</a></code></pre></div>
+<div class="figure">
+<img src="ecb_files/figure-html/unnamed-chunk-5-1.png" alt="Pairs-plot of original peusdo-observation from the data (red) with simulated pseudo_observation from the combined model(black)" width="672"><p class="caption">
+Pairs-plot of original peusdo-observation from the data (red) with simulated pseudo_observation from the combined model(black)
+</p>
+</div>
+<p>As you can see on the plot, this model has a density which is the mean of densities from the copulas. The result is concentrated on original points. Of course, the weights taken there are equal weights by default and could be further otpimised. See the vignette about convex combinasions of copulas for more about this matter.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -173,6 +194,7 @@ Plot of the copula itself
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#definition-of-the-empirical-checkerboard-copula">Definition of the empirical checkerboard copula</a></li>
       <li><a href="#implementation-of-this-model">Implementation of this model</a></li>
+      <li><a href="#about-the-value-of-m">About the value of <span class="math inline">\(m\)</span></a></li>
       </ul>
 </div>
       </div>
