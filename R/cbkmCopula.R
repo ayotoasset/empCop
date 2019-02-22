@@ -60,87 +60,69 @@ NULL
 #'                   margins_numbers = known_margins,
 #'                   known_cop = known_clayton)
 cbkmCopula = function(x, m = nrow(x), pseudo = FALSE, margins_numbers = NULL, known_cop = NULL,quiet=FALSE,exception_type="checkerboard") {
-  if (missing(x)) {
-    stop("The argument x must be provided")
-  }
 
-  if(ncol(x) == 0){
-    stop("you are providing a data.frame equal to NULL")
-  }
 
-  if(nrow(x) == 0){
-    return(indepCopula(ncol(x)))
-  }
+  # Some error handlers :
+  if (missing(x)) { stop("The argument x must be provided") }
+  if(ncol(x) == 0){ stop("you are providing a data.frame equal to NULL") }
+  if(nrow(x) == 0){ return(indepCopula(ncol(x))) }
+  if ((is.null(known_cop) && (!is.null(margins_numbers))) || (is.null(known_cop) && (!is.null(margins_numbers)))) { stop("known_cop argument and margins argument must both be provided.") }
+  if (!pseudo) { x <- apply(x, 2, rank, na.last = "keep")/(nrow(x) + 1) }
+  if (all(is.null(known_cop), is.null(margins_numbers))) { return(.cbCopula(pseudo_data = as.data.frame(x), m = m)) }
+  if(!all(margins_numbers %in% 1:ncol(x))){ stop("Margins number should be inside 1:ncol(x), or NULL.") }
+  ######## pCopula precalculations :
+  if(!quiet){message("Doing precalculations...")}
+  if(!quiet){message("  Construct boxes")}
+  box_inf <- do.call(expand.grid, lapply(1:ncol(x), function(x) {
+    seq(0, 1 - 1/m, length = m)
+  }))
+  attr(box_inf, "out.attrs") <- NULL
+  box_inf <- as.matrix(box_inf)
+  colnames(box_inf) <- NULL
 
-  if ((is.null(known_cop) && (!is.null(margins_numbers))) || (is.null(known_cop) &&
-                                                              (!is.null(margins_numbers)))) {
-    stop("known_cop argument and margins argument must both be provided.")
-  }
+  # now calculate the empirical measure for each box and each projection :
+  if(!quiet){message("  Calculte empirical measures...")}
+  seuil_inf <- as.matrix(floor(x * m)/m)
 
-  if (!pseudo) {
-    x <- apply(x, 2, rank, na.last = "keep")/(nrow(x) + 1)
-  }
-  if (all(is.null(known_cop), is.null(margins_numbers))) {
-    .cbCopula(pseudo_data = as.data.frame(x), m = m)
-  } else {
+  # Vectorizing is life.
+  nb <- apply(box_inf,1,function(x){
+    not_is_zero <- !(abs(t(seuil_inf)-x)<1/(10*m))
+    # <1/(10*m) => it's zero since they are all multiples of 1/m
+    # colSums(not_is_zero) == 0 gives a 1 for each point in the box.
+    return(c(
+      sum(colSums(not_is_zero) == 0),
+      sum(colSums(not_is_zero[margins_numbers,]) == 0),
+      sum(colSums(not_is_zero[-margins_numbers,]) == 0)
+    ))
+  })
+  if(!quiet){message("  End of loop")}
+  nb_emp <- nb[1,]
+  nb_emp_J <- nb[2,]
+  nb_emp_notJ <- nb[3,]
 
-    ######## pCopula precalculations :
-    if(!quiet){message("Doing precalculations...")}
-    # construct boxes :
-    box_inf <- do.call(expand.grid, lapply(1:ncol(x), function(x) {
-      seq(0, 1 - 1/m, length = m)
-    }))
-    attr(box_inf, "out.attrs") <- NULL
-    box_inf <- as.matrix(box_inf)
-    colnames(box_inf) <- NULL
+  if(!quiet){message("  Weights")}
+  weights <- vector(length = length(nb_emp))
+  weights[nb_emp_J != 0] <- nb_emp[nb_emp_J != 0]/nb_emp_J[nb_emp_J != 0]
 
-    # now calculate the empirical measure for each box and each projection :
-
-    seuil_inf <- as.matrix(floor(x * m)/m)
-
-    nb_emp <- sapply(1:(m^ncol(x)), function(i) {
-      sum(apply(seuil_inf, 1, function(x) {
-        all(round(m * x, 0) == round(m * box_inf[i, ], 0))
-      }))
-    })
-
-    # J-projected boxes :
-    nb_emp_J <- sapply(1:(m^ncol(x)), function(i) {
-      sum(apply(seuil_inf, 1, function(x) {
-        all(round(m * x[margins_numbers], 0) == round(m * box_inf[i,
-                                                                  margins_numbers], 0))
-      }))
-    })
-
-    #  -J-projected boxes :
-    nb_emp_notJ <- sapply(1:(m^ncol(x)), function(i) {
-      sum(apply(seuil_inf, 1, function(x) {
-        all(round(m * x[-margins_numbers], 0) == round(m * box_inf[i,
-                                                                   -margins_numbers], 0))
-      }))
-    })
-
-    weights <- vector(length = length(nb_emp))
-    weights[nb_emp_J != 0] <- nb_emp[nb_emp_J != 0]/nb_emp_J[nb_emp_J != 0]
-
-    if(exception_type == "checkerboard"){
-      weights[nb_emp_J == 0] <- nb_emp_notJ[nb_emp_J == 0]/sum(nb_emp)
-    }else {
-      if(exception_type == "indep"){
-        weights[nb_emp_J == 0] <- m^(length(margins_numbers) - ncol(x))
-      } else {
-        stop("exception_type must be 'checkerboard' or 'indep'")
-      }
+  if(!quiet){message("  Exception_type")}
+  if(exception_type == "checkerboard"){
+    weights[nb_emp_J == 0] <- nb_emp_notJ[nb_emp_J == 0]/sum(nb_emp)
+  }else {
+    if(exception_type == "indep"){
+      weights[nb_emp_J == 0] <- m^(length(margins_numbers) - ncol(x))
+    } else {
+      stop("exception_type must be 'checkerboard' or 'indep'")
     }
-
-    pCopula_precalculations <- list(box_inf = box_inf, nb_emp = nb_emp,
-                                    nb_emp_J = nb_emp_J, nb_emp_notJ=nb_emp_notJ,
-                                    weights = weights)
-    ######## Returning the objec :
-    if(!quiet){message("Done !")}
-    .cbkmCopula(pseudo_data = as.data.frame(x), m = m, margins = margins_numbers,
-                known_cop = known_cop, box_inf = box_inf, precalc = list(pCopula = pCopula_precalculations))
   }
+
+  if(!quiet){message("  Assigning and returning")}
+  pCopula_precalculations <- list(box_inf = box_inf, nb_emp = nb_emp,
+                                  nb_emp_J = nb_emp_J, nb_emp_notJ=nb_emp_notJ,
+                                  weights = weights)
+  ######## Returning the objec :
+  if(!quiet){message("Done !")}
+  .cbkmCopula(pseudo_data = as.data.frame(x), m = m, margins = margins_numbers,
+              known_cop = known_cop, box_inf = box_inf, precalc = list(pCopula = pCopula_precalculations))
 
 
 }

@@ -36,8 +36,10 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
   NumericVector cumsum_result = 0;
   NumericVector mes_known;
   NumericVector mes_lebesgue;
-  J = clone(J)-1; // Cpp uses 0 to N-1 for vectors.
-  d_moins_J = clone(d_moins_J) -1; // Cpp uses 0 to N-1 for vectors.
+  IntegerVector d_moins_J_;
+  IntegerVector J_;
+  J_ = clone(J)-1; // Cpp uses 0 to N-1 for vectors.
+  d_moins_J_ = clone(d_moins_J) -1; // Cpp uses 0 to N-1 for vectors.
   NumericVector Result (u.nrow());
 
   for(int n_obs = 0; n_obs<u.nrow();n_obs++){
@@ -52,8 +54,8 @@ NumericVector Cpp_pCopula_cbkmCopula(IntegerVector d_moins_J,
       // Add weights only if the intersection is not empty :
       if (! any(min > max).is_true()){
         // mesure of the known copula and of lebesgue copula on their margins, per box
-        mes_known = vCopula_wrapper(min[J],max[J]);
-        mes_lebesgue = prod(max[d_moins_J] - min[d_moins_J])*pow(m,d-p);
+        mes_known = vCopula_wrapper(min[J_],max[J_]);
+        mes_lebesgue = prod(max[d_moins_J_] - min[d_moins_J_])*pow(m,d-p);
 
         // return the cumulative sum :
         cumsum_result[0] = cumsum_result[0] + mes_known[0] * mes_lebesgue[0] * weights[i];

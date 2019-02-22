@@ -110,18 +110,13 @@ setMethod(f = "pCopula", signature = c(u = "matrix", copula = "ConvexCombCopula"
             if (ncol(u) != dim(copula)) {
               stop("the input value must be coer??able to a matrix with dim(copula) columns.")
             }
-#
-#             outputs <- lapply(1:length(copula@copulas), function(i) {
-#               pCopula(u, copula@copulas[[i]]) * copula@alpha[i]
-#             })
-#
-#             rez <- Reduce("+",outputs)
-#             return(rez)
-#             # taken from the mixCopula class.
-              as.vector(
-                vapply(copula@copulas, pCopula, FUN.VALUE=numeric(nrow(u)), u=u)
-                %*%
-                  copula@alpha)
+            as.vector(
+              vapply(copula@copulas,
+                     pCopula,
+                     FUN.VALUE=numeric(nrow(u)),
+                     u=u
+              ) %*% copula@alpha
+            )
 
           })
 

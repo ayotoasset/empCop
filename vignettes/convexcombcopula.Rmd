@@ -45,30 +45,27 @@ pCopula(c(0.5,0.7),cop)
 
 The number of copulas is not restricte. Avaliables methods are for the moment `rCopula` and `pCopula`. 
 
-
 For exemple, given a dataset, we could optimise each copula first and them optimise weights, based on some criterion, e.g rmse. 
 
 
 ```{r}
 data("LifeCycleSavings")
-pseudo_dataset <- apply(LifeCycleSavings[sample(1:50,size=20),],2,rank)/(nrow(LifeCycleSavings)+1)
-d <- ncol(pseudo_dataset)
-pairs(pseudo_dataset)
+pseudo_data <- apply(LifeCycleSavings,2,rank)/(nrow(LifeCycleSavings)+1)
+d <- ncol(pseudo_data)
+pairs(pseudo_data)
 ```
 
 For exemple, let's start from checkerboards(m=10) with known bivariate clayton margins. Since only the variables 2 to 4 seems to be non-independant, we will calculate cbkmCopulas only for thoose.
 
 ```{r}
 
-cbkm_clayton <- function(data,margins,m=10){
-  
+cbkm_clayton <- function(data,margins,m=5){
   known_copula <- 
     archmCopula("Clayton",dim=2,
                 param = coef(fitCopula(
                   archmCopula("Clayton",dim = length(margins)),
                   data[,margins],
                   method="itau")))
-  
   cbkmCopula(data,
              m=m,
              pseudo=TRUE,
@@ -81,47 +78,86 @@ cbkm_clayton <- function(data,margins,m=10){
 couples <- as.matrix(expand.grid(2:4,2:4))
 couples <- couples[couples[,1]<couples[,2],]
 
-copulas <- list()
-copulas[[1]] <- cbCopula(pseudo_dataset,pseudo=TRUE,m=4)
+copulas <- apply(couples,1,function(margins){
+  cbkm_clayton(pseudo_data,margins)
+})
 
-# for(i in 1:nrow(couples)){
-#   copulas[[i+1]] <- cbkm_clayton(pseudo_dataset,couples[i,])
-# }
+ccc_equal_weights <- ConvexCombCopula(copulas)
 
+simu <- rCopula(500,ccc_equal_weights)
+pairs(rbind(simu,pseudo_data),
+      col=c(rep("black",nrow(simu)),rep("red",nrow(pseudo_data))),
+      gap=0,
+      lower.panel=NULL)
 
 ```
 
 
-For exemple, we can draw a simulations from the first cbkmCopula : 
+This combinasion was taken with equal weights. But we could also try to optimise them. For exmeple, we could compute a predictive performance measure like the RMSE on a leave-one-out context and use it as a criterion.
+
+The "good" model will be the empirical copula. We calculate values of the empirical copula on the dataset when in a leave-ont-out way. Let's choose only 46 points.
+```{r}
+X <- pseudo_data[sample(1:nrow(pseudo_data),46),]
+d = ncol(X)
+n = nrow(X)
+pEmpCop_loo <- sapply(1:n,function(i_loo){
+  sum(colSums(t(X[-i_loo,]) <= X[i_loo,]) == d)
+}) / n
+```
+
+Now, we also need to compute the different models in a leave-one-out manner : 
+
+
+
 
 ```{r}
-#pairs(rCopula(1000,copulas[[1]]))
+
+
+pcopulas_loo <- sapply(1:n,function(i_loo){
+  copulas <- apply(couples,1,function(margins){
+  cbkm_clayton(X[-i_loo,],margins)
+  })
+  sapply(copulas,function(cop){
+    pCopula(X[i_loo,],cop)
+  })
+})
+
+
 ```
 
-Now that we have all thoose fits, we can optimise weights regarding a certain criterion. 
-
-Here the criterion will be the RMSE on the dataset : 
+Now let's calculate the RMSE per copulas : 
 
 ```{r}
-# rmse <- function(alpha,cop,data,pEmpCop){
-#     sqrt(sum((pCopula(u=data,copula=cop) - pEmpCop)^2))
-# }
-# 
-# criterion <- function(alpha = rep(1/length(cops),length(cops)),cops,data){
-#   pEmpCop <- pCopula(u=data,copula=empCopula(data))
-#   cop <- ConvexCombCopula(copulas = cops,alpha = alpha)
-#   rmse(alpha,cop,data,pEmpCop)
-# }
+rmse_loo <- sapply(1:nrow(pcopulas_loo),function(i){
+  sum((pcopulas_loo[i,] - pEmpCop_loo)^2)
+})
 
-#criterion(cops = copulas,data = pseudo_dataset)
+weights <- (1/rmse_loo)/sum(1/rmse_loo)
+```
+
+Using thoose weights, we can calculate a new convex combination of copulas : 
+
+```{r}
+ccc_loo <- ConvexCombCopula(copulas,alpha = weights)
+
+simu <- rCopula(500,ccc_loo)
+pairs(rbind(simu,X),
+      col=c(rep("black",nrow(simu)),rep("red",nrow(X))),
+      gap=0,
+      lower.panel=NULL)
+
 ```
 
 
-This implmeentation is not finished because the actual implementation of the pCopula function is clearly not good enough (not fast enough) to include cbkmCopulas in this process. 
+We could compare the kendall's tau matrices : 
+```{r}
+cor(X,method="kendall")
+cor(rCopula(1000,ccc_loo),method="kendall")
+```
 
-The solution to spee things up is to pass coputations to C++ instead of R. Will do soon.
+This implmeentation is not finished because the actual implementation of the pCopula function is clearly not good enough (not fast enough) to go further in the optimisation process. 
 
-But for the moment this is not possible.
+The solution to speed things up is to pass coputations to C++ instead of R, Wich we will do soon.
 
 
 

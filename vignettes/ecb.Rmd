@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
   fig.height = 7
 )
 ```
-The empirical checkerboard copula is a model for copula defined by Cuberos (citation?). In this first section fo this vignette, we will set notations and define the model. The second section will discuss and demonstrate the implementation made in the package.
+The empirical checkerboard copula is a model for copula defined by Cuberos (citation?). In the first section of this vignette, we will set notations and define the model. The second section will discuss and demonstrate the implementation made in the package.
 
 ## Definition of the empirical checkerboard copula
 
@@ -57,12 +57,12 @@ $$\forall x \in [0,1]^d, \hat{C}(x) = \sum\limits_{\mathbf{i}\in\mathcal{I}} {m^
 
 A known result is that this is a copula if and only if $m$ divides $n$ (see cuberos). In this case, some theoretical limiting results are avaliables.
 
-The next section will discuss how one could use this copula in R.
+The next section will discuss how one could use this copula in R, leveraging the `empCop` package.
 
 
 ## Implementation of this model
 
-In our package, this empirical checkerboard copula, here called ECBC, is implemented in the `cbCopula` class. 
+In our package, this empirical checkerboard copula is implemented in the `cbCopula` class. 
 
 To create one of theese copula, you will need a dataset to start with. For the matter of this vignette, we will use the `LifeCycleSavings` dataset, which has following pairs dependencies plot : 
 
@@ -77,9 +77,7 @@ pairs(pseudo_data,col="2",lower.panel=NULL,gap=0)
 You can see that the variable 2 to 4 have noticeable dependencies structures, while the first and last one are harder to diagnose on this graphics. The dataset having $n=50$ rows, we will pick a value of $m$ dividing $50$, e.g $m=5$, and use the function `cbCopula` to build our copula model. Since we are already providing the pseudo observations, we will set `pseudo = TRUE`.
 
 ```{r}
-m=5
-cop <- cbCopula(x = pseudo_data,m = m,pseudo = TRUE)
-cop
+(cop <- cbCopula(x = pseudo_data,m = 5,pseudo = TRUE))
 ```
 
 For the moment, only some methods exist for this copula. We can calculate it's values via the `pCopula` method, get it's dimention via the `dim` method, or simulate from it via the `rCopula` method. Here is an exemple of simulation from this model : 
@@ -103,4 +101,25 @@ value <- pCopula(as.matrix(grid),cop)
 library("scatterplot3d")
 scatterplot3d(grid$x,grid$y,value)
 ```
+
+
+## About the value of $m$
+
+The value of the checkerboar parameter $m$ condition heavily the copula itself. using the ConvexCombCopula class, we could use this parameter to construct a more complicated model, consisting of a linear mean of all possible checkerboard copulas. This could be done as follows : 
+
+```{r, fig.cap = "Pairs-plot of original peusdo-observation from the data (red) with simulated pseudo_observation from the combined model(black)"}
+n <- nrow(pseudo_data)
+
+possibles_m <- which(sapply(1:n,function(x){(n%%x) == 0}))
+copulas <- lapply(possibles_m,function(m){cbCopula(x = pseudo_data,m = m,pseudo = TRUE)})
+mean_cop <- ConvexCombCopula(copulas)
+
+simu <- rCopula(n = 1000,copula = mean_cop)
+pairs(rbind(simu,pseudo_data),
+      col=c(rep("black",nrow(simu)),rep("red",nrow(pseudo_data))),
+      gap=0,
+      lower.panel=NULL)
+```
+
+As you can see on the plot, this model has a density which is the mean of densities from the copulas. The result is concentrated on original points. Of course, the weights taken there are equal weights by default and could be further otpimised. See the vignette about convex combinasions of copulas for more about this matter. 
 
